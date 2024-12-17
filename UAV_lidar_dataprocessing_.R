@@ -8,15 +8,31 @@ library(lidRmetrics)
 
 outpath = "G:/test/" 
 setwd("G:/test")
-#LASfile="G:/SLMACC/01_Terra/LiDAR/20221110_FlemingNMartin/20221110_FlemingNMartin_01/lidars/terra_las/cloud7072babcded3e1c7.las"
-LASfile="G:/cloud14d82a2329c16cbe.las"
 
-#do not run the following part if want to get quick result
+# Define the path to the LAS file
+LASfile <- "data/UAV_sample_data/plot_31_pointcloud.las"
+
+# Extract the directory path of the LAS file
+LASfile_dir <- dirname(LASfile)
+
+# Extract file name without extension
+LASfile_name <- tools::file_path_sans_ext(basename(LASfile))
+
+# Create the output file name in the same directory as the LAS file
+output_file <- file.path(LASfile_dir, paste0(LASfile_name, "_summary.txt"))
+
+# Redirect output to the summary txt file
+sink(output_file)
+
+
 las <- readLAS(LASfile)
 print(las)
 summary(las)
 las_check(las)
 las<- filter_duplicates(las)
+
+#stop redirecting output
+sink()
 #######################################################
 
 ctg = readLAScatalog(LASfile)
@@ -179,3 +195,4 @@ ctg_segmented <- segment_trees(ctg_norm_tin, algo)
 ctg_final = readLAScatalog(outpath, pattern = '_segmented')
 las = readLAS(ctg_final)
 plot(las, bg = "white", size = 4, color = "treeID")
+
