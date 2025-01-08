@@ -6,11 +6,10 @@ library(RCSF)
 library(terra)
 library(lidRmetrics)
 
-outpath = "G:/test/" 
-setwd("G:/test")
+outpath = "data/SCION/plot_31_summary" 
 
 # Define the path to the LAS file
-LASfile <- "data/UAV_sample_data/plot_31_pointcloud.las"
+LASfile <- "data/SCION/plot_31_annotated.las"
 
 # Extract the directory path of the LAS file
 LASfile_dir <- dirname(LASfile)
@@ -73,11 +72,11 @@ rasterize_terrain(classified_ctg2, res = 0.1, tin())
 dtm_tiles <- list.files(path = outpath, pattern = '_dtm.tif$', full.names = T)
 dtm_mosaic <- vrt(dtm_tiles, overwrite = T)
 dtm_mosaic
-writeRaster(dtm_mosaic, filename = 'dtm_mosaic.tif', overwrite = T)
+writeRaster(dtm_mosaic, filename = paste0(outpath,'dtm_mosaic.tif'), overwrite = T)
 
 # ----- DTM smooth-----
 dtm_smooth <- dtm_mosaic %>%focal(w = matrix(1, 25, 25), fun = mean, na.rm = TRUE,pad = TRUE)
-writeRaster(dtm_smooth, filename = 'dtm_mosaic_smooth.tif', overwrite = T)
+writeRaster(dtm_smooth, filename = paste0(outpath,'_dtm_mosaic_smooth.tif'), overwrite = T)
 
 plot(dtm_mosaic, bg = "white") 
 dtm_prod <- terra::terrain(dtm_mosaic, v = c("slope", "aspect"), unit = "radians")
@@ -103,7 +102,7 @@ opt_filter(ctg_norm_tin) <- "-drop_withheld -drop_z_below 0"
 basic <- pixel_metrics(ctg_norm_tin , ~lidRmetrics::metrics_basic(Z), res = 1)
 basic_tiles <- list.files(path = outpath, pattern = '_norm_tin.tif$', full.names = T)
 basic_mosaic <- vrt(basic_tiles, overwrite = T)
-writeRaster(basic_mosaic, filename = 'basic_metrics.tif', overwrite = TRUE)
+writeRaster(basic_mosaic, filename = paste0(outpath,'_basic_metrics.tif'), overwrite = TRUE)
 
 # ----- Canopy Height Model -----
 opt_output_files(ctg_norm_tin) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_chm")
@@ -142,9 +141,9 @@ plot(chm_mosaic, col = height.colors(50))
 plot(chm_filled, col = height.colors(50))
 plot(chm_smooth, col = height.colors(50))
 
-writeRaster(chm_mosaic, filename = 'chm_mosaic.tif', overwrite = T)
-writeRaster(chm_filled, filename = 'chm_filled.tif', overwrite = T)
-writeRaster(chm_smooth, filename = 'chm_smooth.tif', overwrite = T)
+writeRaster(chm_mosaic, filename = paste0(outpath,'chm_mosaic.tif'), overwrite = T)
+writeRaster(chm_filled, filename = paste0(outpath,'chm_filled.tif'), overwrite = T)
+writeRaster(chm_smooth, filename = paste0(outpath,'chm_smooth.tif'), overwrite = T)
 
 # ----- Digital Surface Model -----
 opt_output_files(classified_ctg2) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_dsm")
@@ -152,7 +151,7 @@ rasterize_canopy(classified_ctg2,res = 0.1,algorithm = p2r(na.fill = knnidw()))
 dsm_tiles <- list.files(path = outpath, pattern = '_dsm.tif$', full.names = T)
 dsm_mosaic <- vrt(dsm_tiles, overwrite = T)
 names(dsm_mosaic) <- 'Z'
-writeRaster(dsm_mosaic, filename = 'dsm_mosaic.tif', overwrite = T)
+writeRaster(dsm_mosaic, filename = paste0(outpath,'_dsm_mosaic.tif'), overwrite = T)
 
 # ----- Fill dsm -----
 dsm_filled <- terra::focal(dsm_mosaic,w = 3,fun = "mean",na.policy = "only",na.rm = TRUE)
@@ -162,8 +161,8 @@ names(dsm_filled) <- 'Z'
 dsm_smooth <- terra::focal(dsm_filled, w = fgauss(1, n = 5))
 names(dsm_smooth) <- 'Z'
 
-writeRaster(dsm_filled, filename = 'dsm_filled.tif', overwrite = T)
-writeRaster(dsm_smooth, filename = 'dsm_smooth.tif', overwrite = T)
+writeRaster(dsm_filled, filename = paste0(outpath,'_dsm_filled.tif'), overwrite = T)
+writeRaster(dsm_smooth, filename = paste0(outpath,'_dsm_smooth.tif'), overwrite = T)
 
 
 plot(dsm_mosaic, col = height.colors(50))
