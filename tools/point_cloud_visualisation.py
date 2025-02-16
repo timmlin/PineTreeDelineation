@@ -93,7 +93,7 @@ def visulaise_las(input_file):
 
 
     o3d.visualization.draw_geometries(
-        [grid_lines, point_cloud],
+        [point_cloud],
         window_name=f"{input_file} Point Cloud"
     )
 
@@ -119,6 +119,6 @@ def run_visualization(las_file_1, las_file_2):
 
 if __name__ == "__main__":
     
-    las_file_path = r"Rolleston_grid/cell_3_3.las"
+    las_file_path = r"data/UAV_sample_data/plot_31_pointcloud_normalised.las"
 
     visulaise_las(las_file_path)
