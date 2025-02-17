@@ -2,8 +2,6 @@ import laspy
 import numpy as np
 import open3d as o3d
 
-
-
 def noramlise_las(las):
     """
     Normalises a point cloud (sets minimum x, y, z values to 0)
@@ -46,58 +44,78 @@ def ransac_classify_ground(pnt_cld, visualise = False):
 
     """
 
+
+    clouds = []
+
     # Plane segmentation to detect ground
     plane_model, inliers = pnt_cld.segment_plane(distance_threshold=0.2, ransac_n=3, num_iterations=1000)
 
-    # Get ground plane equation (ax + by + cz + d = 0)
-    a, b, c, d = plane_model
 
     # Extract ground points and non-ground points
     ground_points = np.asarray(pnt_cld.points)[inliers]
     non_ground_points = np.asarray(pnt_cld.points)[~np.isin(np.arange(len(pnt_cld.points)), inliers)]
-
-    # Normalize ground by setting Z to 0
-    ground_points[:, 2] -= (-d / c)
+    print(type(ground_points))
 
     # Merge ground and non-ground points back
     normalized_points = np.vstack((ground_points, non_ground_points))
 
-    # Update the Open3D point cloud with normalized points
     normalized_pnt_cld = o3d.geometry.PointCloud()
     normalized_pnt_cld.points = o3d.utility.Vector3dVector(normalized_points)
 
-    # Set the color for ground points
-    ground_color = [1, 0, 0]  # Red color for ground
+    #creates an open3d point cloud of ground points
+    ground_color = [1, 0, 0] #red
     ground_pnt_cld = o3d.geometry.PointCloud()
     ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
     ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
 
-    # Set the color for non-ground points
-    non_ground_color = [0, 0, 1]  # Blue color for non-ground
+    clouds.append(ground_pnt_cld)
+
+    #creates an open3d point cloud of ground points
+    non_ground_color = [0, 0, 1] 
     non_ground_pnt_cld = o3d.geometry.PointCloud()
     non_ground_pnt_cld.points = o3d.utility.Vector3dVector(non_ground_points)
     # non_ground_pnt_cld.colors = o3d.utility.Vector3dVector([non_ground_color] * len(non_ground_points))
+    
+    clouds.append(non_ground_pnt_cld)
 
 
     # Visualize the ground and non-ground point clouds with different colors
-    print("Visualizing ground (red) and non-ground (blue) point clouds...")
-    o3d.visualization.draw_geometries([ground_pnt_cld, non_ground_pnt_cld], window_name="Ground and Non-Ground Points")
+    print("Visualising ground classification ")
+    o3d.visualization.draw_geometries(clouds, window_name="Ground Classification")
 
-def main():
 
-    las_file = "data/UAV_sample_data/plot_31_pointcloud.las"
-    las = laspy.read(las_file)
 
-    las = noramlise_las(las)
+def classify_ground(pnt_cld, visualise = False):
+    """
+    classifies the ground points of an Open3D Point Cloud based on a points z value
 
-    points = np.vstack((las.x, las.y, las.z)).T
+    Args:
+        pnt_cld (open3d.cuda.pybind.geometry.PointCloud): an Open3D point cloud.
+        visulaise (bool): flag that determines if the point cloud will be visulaised afer classification
 
-    # Convert to Open3D Point Cloud
-    pnt_cld = o3d.geometry.PointCloud()
-    pnt_cld.points = o3d.utility.Vector3dVector(points)
+    Returns:
+        las open3d.cuda.pybind.geometry.PointCloud: an Open3D point cloud with classified ground points.
 
-    ransac_classify_ground(pnt_cld, visualise= True)
+    """
+    clouds = []
 
+
+    points = np.asarray(pnt_cld.points)
+
+    z_threshold = 5
     
+    ground_mask = points[:, 2] <= z_threshold
+    non_ground_points = points[:, 2] > z_threshold
 
-main()
+
+    # Assign ground points a different color (e.g., red for visualization)
+    colors = np.zeros_like(points)  # Default color black
+    colors[ground_mask] = [1, 0, 0]  # Red for ground points
+    
+    # Update point cloud colors
+    pnt_cld.colors = o3d.utility.Vector3dVector(colors)
+    
+    if visualise:
+        o3d.visualization.draw_geometries([pnt_cld], window_name="Classified Ground Points")
+    
+    return pnt_cld

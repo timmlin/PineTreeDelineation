@@ -4,8 +4,7 @@ import open3d as o3d
 import threading
 import multiprocessing
 
-import tools.normalise_pointcloud.py
-
+from tools.normalise_pointcloud import *
 
 def main():
 
@@ -20,7 +19,9 @@ def main():
     pnt_cld = o3d.geometry.PointCloud()
     pnt_cld.points = o3d.utility.Vector3dVector(points)
 
-    ransac_classify_ground(pnt_cld, visualise= True)
+
+
+    pnt_cld = ransac_classify_ground(pnt_cld, visualise= True)
 
     
 
