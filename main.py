@@ -21,7 +21,8 @@ def main():
 
 
 
-    pnt_cld = ransac_classify_ground(pnt_cld, visualise= True)
+    # pnt_cld = ransac_classify_ground(pnt_cld, visualise= True)
+    pnt_cld = classify_ground(pnt_cld, visualise= True)
 
     
 
