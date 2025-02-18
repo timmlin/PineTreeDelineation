@@ -2,6 +2,9 @@ import laspy
 import numpy as np
 import open3d as o3d
 
+
+#-------------------------PRE--PROCESSING----------------------
+
 def noramlise_las(las):
     """
     Normalises a point cloud (sets minimum x, y, z values to 0)
@@ -28,7 +31,6 @@ def noramlise_las(las):
     las.z = normalized_z
 
     return las
-
 
 
 def ransac_classify_ground(pnt_cld, visualise = False):
@@ -103,7 +105,6 @@ def classify_ground(pnt_cld, visualise=False):
     ground_points = points[ground_points_mask]
     non_ground_points = points[non_ground_points_mask]
 
-    print(type(ground_points))
 
     # #creates an open3d point cloud of ground points
     ground_color = [1, 0, 0] #red
@@ -125,4 +126,6 @@ def classify_ground(pnt_cld, visualise=False):
     if visualise:
         o3d.visualization.draw_geometries(clouds, window_name="Classified Ground Points")
     
-    return pnt_cld
+    return clouds
+
+
