@@ -24,8 +24,8 @@ def layer_stacking(pnt_cld, layer_height = 1):
         return_type: Description of the return value.
 
     """
-    ground_points = np.asarray(pnt_cld[0].points)
-    tree_points = np.asarray(pnt_cld[1].points)
+    tree_points = np.asarray(pnt_cld[0].points)
+    ground_points = np.asarray(pnt_cld[1].points)
 
     #list to save segmented clouds
     clouds = []
@@ -56,7 +56,8 @@ def layer_stacking(pnt_cld, layer_height = 1):
 
         layers.append(layer_cloud)
 
-        layers.append(pnt_cld[0])
+    layers.append(pnt_cld[0])
+
     o3d.visualization.draw_geometries(layers, window_name = "layers")
 
 

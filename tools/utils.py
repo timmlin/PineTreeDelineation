@@ -106,13 +106,6 @@ def classify_ground(pnt_cld, visualise=False):
     non_ground_points = points[non_ground_points_mask]
 
 
-    # #creates an open3d point cloud of ground points
-    ground_color = [1, 0, 0] #red
-    ground_pnt_cld = o3d.geometry.PointCloud()
-    ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
-    ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
-
-    clouds.append(ground_pnt_cld)
 
     #creates an open3d point cloud of ground points
     non_ground_pnt_cld = o3d.geometry.PointCloud()
@@ -121,6 +114,13 @@ def classify_ground(pnt_cld, visualise=False):
     clouds.append(non_ground_pnt_cld)
 
     
+    # #creates an open3d point cloud of ground points
+    ground_color = [1, 0, 0] #red
+    ground_pnt_cld = o3d.geometry.PointCloud()
+    ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
+    ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
+
+    clouds.append(ground_pnt_cld)
     
     
     if visualise:
