@@ -13,7 +13,7 @@ from tools.utils import *
 #---------------------SEGMENTATION----------------------------
 
 
-def layer_stacking(pnt_cld, layer_height = 1):
+def layer_stacking(points, layer_height = 1, visualise = False):
     """
     performs the layer stacking segmentation algorithm.
 
@@ -24,8 +24,8 @@ def layer_stacking(pnt_cld, layer_height = 1):
         return_type: Description of the return value.
 
     """
-    tree_points = np.asarray(pnt_cld[0].points)
-    ground_points = np.asarray(pnt_cld[1].points)
+    tree_points = points[0]
+    ground_points = points[1]
 
     #list to save segmented clouds
     clouds = []
@@ -39,8 +39,8 @@ def layer_stacking(pnt_cld, layer_height = 1):
 
     #list to store each layer
     layers = []
-
-    for i in range(num_layers):
+    to_visulase = []
+    for i in reversed(range(num_layers)):
         
         cur_layer_min_height = i * layer_height
         cur_layer_max_height = cur_layer_min_height + layer_height
@@ -49,16 +49,31 @@ def layer_stacking(pnt_cld, layer_height = 1):
 
         layer_points = tree_points[layer_mask]
 
-        layer_colour = [random.random(), random.random(),random.random()]
-        layer_cloud = o3d.geometry.PointCloud()
-        layer_cloud.points = o3d.utility.Vector3dVector(layer_points)
-        layer_cloud.colors = o3d.utility.Vector3dVector([layer_colour] * len(layer_points))
+        if visualise:
+            layer_colour = [random.random(), random.random(),random.random()]
+            layer_cloud = o3d.geometry.PointCloud()
+            layer_cloud.points = o3d.utility.Vector3dVector(layer_points)
+            layer_cloud.colors = o3d.utility.Vector3dVector([layer_colour] * len(layer_points))
+            to_visulase.append(layer_cloud)
 
-        layers.append(layer_cloud)
+        layers.append(layer_points)
 
-    layers.append(pnt_cld[0])
+    layers.append(ground_points)
 
-    o3d.visualization.draw_geometries(layers, window_name = "layers")
+
+
+    if visualise: 
+        # creates an open3d point cloud of ground points
+        ground_color = [1, 0, 0] #red
+        ground_pnt_cld = o3d.geometry.PointCloud()
+        ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
+        ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
+    
+        to_visulase.append(ground_pnt_cld)        
+        o3d.visualization.draw_geometries(to_visulase, window_name = "layers")
+
+
+    
 
 
 def main():
@@ -79,6 +94,6 @@ def main():
     # pnt_cld = ransac_classify_ground(pnt_cld, visualise= True)
     pnt_cld = classify_ground(pnt_cld, visualise= False)
 
-    layer_stacking(pnt_cld)
+    layer_stacking(pnt_cld, visualise = True)
 
 main()

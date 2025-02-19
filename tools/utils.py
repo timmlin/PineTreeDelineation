@@ -89,7 +89,7 @@ def classify_ground(pnt_cld, visualise=False):
         visualise (bool, optional): If True, the classified point cloud will be visualized. Defaults to False.
 
     Returns:
-        open3d.cuda.pybind.geometry.PointCloud: The input point cloud with classified ground points.
+        clouds (list): A list containing the ground and non ground points arrays.
     """
 
     clouds = []
@@ -105,27 +105,24 @@ def classify_ground(pnt_cld, visualise=False):
     ground_points = points[ground_points_mask]
     non_ground_points = points[non_ground_points_mask]
 
+    clouds.append(non_ground_points)
 
-
-    #creates an open3d point cloud of ground points
-    non_ground_pnt_cld = o3d.geometry.PointCloud()
-    non_ground_pnt_cld.points = o3d.utility.Vector3dVector(non_ground_points)
-    
-    clouds.append(non_ground_pnt_cld)
-
-    
-    # #creates an open3d point cloud of ground points
-    ground_color = [1, 0, 0] #red
-    ground_pnt_cld = o3d.geometry.PointCloud()
-    ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
-    ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
-
-    clouds.append(ground_pnt_cld)
+    clouds.append(ground_points)
     
     
     if visualise:
-        o3d.visualization.draw_geometries(clouds, window_name="Classified Ground Points")
     
+        #creates an open3d point cloud of ground points
+        non_ground_pnt_cld = o3d.geometry.PointCloud()
+        non_ground_pnt_cld.points = o3d.utility.Vector3dVector(non_ground_points)
+    
+        # #creates an open3d point cloud of ground points
+        ground_color = [1, 0, 0] #red
+        ground_pnt_cld = o3d.geometry.PointCloud()
+        ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
+        ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
+    
+        o3d.visualization.draw_geometries(clouds, window_name="Classified Ground Points")
     return clouds
 
 
