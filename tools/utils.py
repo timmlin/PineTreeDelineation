@@ -80,7 +80,7 @@ def ransac_classify_ground(pnt_cld, visualise = False):
         o3d.visualization.draw_geometries([pnt_cld], window_name="Classified Ground Points")
 
 
-def classify_ground(pnt_cld, visualise=False):
+def classify_ground(points, visualise=False):
     """
     Classifies the ground points of an Open3D Point Cloud based on the z-value (height) of points.
 
@@ -95,7 +95,7 @@ def classify_ground(pnt_cld, visualise=False):
     clouds = []
 
 
-    points = np.asarray(pnt_cld.points)
+    # points = np.asarray(pnt_cld.points)
 
     z_threshold = 1
     
@@ -122,7 +122,13 @@ def classify_ground(pnt_cld, visualise=False):
         ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
         ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
     
-        o3d.visualization.draw_geometries(clouds, window_name="Classified Ground Points")
+        o3d.visualization.draw_geometries([ground_pnt_cld, non_ground_pnt_cld], window_name="Classified Ground Points")
+
     return clouds
 
 
+def view_raw_cloud(points):
+    pnt_cld = o3d.geometry.PointCloud()
+    pnt_cld.points = o3d.utility.Vector3dVector(points)
+    # pnt_cld.colors = o3d.utility.Vector3dVector([centroids_colour] * len(centroids))
+    o3d.visualization.draw_geometries([pnt_cld], window_name="Classified Ground Points")
