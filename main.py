@@ -5,6 +5,7 @@ import threading
 import multiprocessing
 import random
 from sklearn.cluster import MeanShift
+from scipy.spatial import ConvexHull
 
 
 from tools.utils import *
@@ -15,7 +16,7 @@ from tools.utils import *
 #---------------------SEGMENTATION----------------------------
 
 
-def layer_stacking(points, layer_height = 1, visualise = False):
+def layer_stacking(points, layer_height = 1, visualise = True):
     """
     performs the layer stacking segmentation algorithm.
 
@@ -40,7 +41,8 @@ def layer_stacking(points, layer_height = 1, visualise = False):
 
     num_layers = int(np.ceil((max_height - min_height) / layer_height))
 
-    #list to store each layer
+
+    #----------------------LAYERING-------------
     layers = []
     to_visulase = []
     for i in reversed(range(num_layers)):
@@ -75,46 +77,76 @@ def layer_stacking(points, layer_height = 1, visualise = False):
         to_visulase.append(ground_pnt_cld)        
         o3d.visualization.draw_geometries(to_visulase, window_name = "layers")
 
-#-----------------------------------------------------------------------------------
-    # visuals = []
-    # to_cluster = np.vstack((layers[0], layers[1], layers[2]))
+#---------------------------SEGMENTATION-------------------------------------
+    visuals = []
+    previous_centroids = None
 
-    # cluster = MeanShift(bandwidth=2).fit(to_cluster)
-    
-    # clustered_layer = []
-    # clustered_layer.append(cluster)
+    for i in range(1):
+        to_cluster = np.vstack(layers[i])
+        layer_height = np.mean(to_cluster[:, 2]) 
+        print(layer_height)
+            
 
-    # centroids = clustered_layer[0].cluster_centers_
-
-
-    # centroids_colour = [1, 0, 0] #red
-    # centroids_pnt_cld = o3d.geometry.PointCloud()
-    # centroids_pnt_cld.points = o3d.utility.Vector3dVector(centroids)
-    # centroids_pnt_cld.colors = o3d.utility.Vector3dVector([centroids_colour] * len(centroids))
-
-    # labels = cluster.labels_
-
-    # unique_labels = np.unique(labels)
-    # clustered_point_clouds = []
-
-    # for label in unique_labels:
-    #     # Select points belonging to the current cluster
-    #     cluster_points = to_cluster[labels == label]
         
-    #     # Create a point cloud for the current cluster
-    #     cluster_pnt_cld = o3d.geometry.PointCloud()
-    #     cluster_pnt_cld.points = o3d.utility.Vector3dVector(cluster_points)
+        cluster = MeanShift(bandwidth=2).fit(to_cluster)
         
-    #     # Assign a unique color for each cluster (e.g., random color or a fixed one)
-    #     cluster_color = np.random.rand(3)  # Random color
-    #     cluster_pnt_cld.colors = o3d.utility.Vector3dVector([cluster_color] * len(cluster_points))
-        
-    #     clustered_point_clouds.append(cluster_pnt_cld)
+        labels = cluster.labels_
+        unique_labels = np.unique(labels)
+        centroids = cluster.cluster_centers_
 
-    # # Visualize centroids and clusters
-    # visuals.append(centroids_pnt_cld)
-    # visuals.extend(clustered_point_clouds)
-    # o3d.visualization.draw_geometries(visuals)
+        #plot the centroids 
+        clustered_layer = []
+        clustered_layer.append(cluster)
+
+        centroids_colour = [1, 0, 0] #red
+        centroids_pnt_cld = o3d.geometry.PointCloud()
+        centroids_pnt_cld.points = o3d.utility.Vector3dVector(centroids)
+        centroids_pnt_cld.colors = o3d.utility.Vector3dVector([centroids_colour] * len(centroids))
+
+
+        clustered_point_clouds = []
+        convex_hulls = []
+
+        for label in unique_labels:
+            cluster_points = to_cluster[labels == label]
+
+            xy_points = cluster_points[:, :2]
+            z_mean = np.mean(cluster_points[:, 2])
+            
+            if len(xy_points) >= 3:  # 2D convex hull requires at least 3 points
+                hull = ConvexHull(xy_points)
+                hull_vertices_xy = xy_points[hull.vertices]  
+
+                # Create 3D points by mean z value
+                hull_vertices = np.hstack([hull_vertices_xy, np.full((len(hull_vertices_xy), 1), z_mean)])
+
+                # Create hull edges
+                hull_edges = [(i, (i + 1) % len(hull.vertices)) for i in range(len(hull.vertices))]
+
+                # Create Open3D lineset object for convex hull
+                convex_hull = o3d.geometry.LineSet()
+                convex_hull.points = o3d.utility.Vector3dVector(hull_vertices)
+                convex_hull.lines = o3d.utility.Vector2iVector(hull_edges)
+                convex_hull.colors = o3d.utility.Vector3dVector([[0, 1, 0]] * len(hull_edges))  # green
+
+                convex_hulls.append(convex_hull)
+
+            
+            # Create a point cloud for the current cluster
+            cluster_pnt_cld = o3d.geometry.PointCloud()
+            cluster_pnt_cld.points = o3d.utility.Vector3dVector(cluster_points)
+            
+            cluster_color = np.random.rand(3)
+            cluster_pnt_cld.colors = o3d.utility.Vector3dVector([cluster_color] * len(cluster_points))
+            
+            clustered_point_clouds.append(cluster_pnt_cld)
+
+        # Visualize centroids and clusters
+        visuals.append(centroids_pnt_cld)
+        visuals.extend(clustered_point_clouds)
+        visuals.extend(convex_hulls)
+        
+    o3d.visualization.draw_geometries(visuals)
 
 
 
@@ -150,8 +182,8 @@ def main():
     points = classify_ground(points, visualise= False)
 
 
-    #---------------SEGMENTATION-----------------------
-    layer_stacking(points, visualise = True)
+    # #---------------SEGMENTATION-----------------------
+    layer_stacking(points, visualise = False)
 
     #---------------OTHER---------------------------
     # view_raw_cloud(points)
