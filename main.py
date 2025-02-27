@@ -10,7 +10,7 @@ from tools.utils import *
 
 def hull_overlap(hull1, hull2):
     """
-    Computes the overlap ratio between two convex hulls in 2D (x, y) without Shapely.
+    Computes the overlap ratio between two convex hulls.
 
     Args:
         hull1, hull2 (ConvexHull): Convex hulls of two clusters.
@@ -29,7 +29,7 @@ def hull_overlap(hull1, hull2):
     intersection_area = (hull1.volume + hull2.volume) - combined_hull.volume
     smaller_hull_area = min(hull1.volume, hull2.volume)
 
-    return max(0, intersection_area / smaller_hull_area)  # Ensure non-negative
+    return max(0, intersection_area / smaller_hull_area)
 
 
 
@@ -39,7 +39,6 @@ def merge_clusters(new_clusters, all_clusters, overlap_threshold):
 
         for existing_cluster in all_clusters:
             existing_hull_vertices = existing_cluster["convex_hull"].points[existing_cluster["convex_hull"].vertices, :2]
-
 
             # compute hull overlap
             overlap_ratio = hull_overlap(ConvexHull(existing_hull_vertices), ConvexHull(new_hull_vertices))
@@ -90,7 +89,6 @@ def layer_stacking(points, layer_height=1, view_layers = False, view_clsuters = 
         print(f"layer number {i} has {len(layer_points)} points ")
         layers.append(layer_points)
 
-    layers.append(ground_points)
 
     if view_layers:
         ground_color = [1, 0, 0]  # Red
@@ -102,34 +100,36 @@ def layer_stacking(points, layer_height=1, view_layers = False, view_clsuters = 
 
     # ---------------------------SEGMENTATION-------------------------------------
     visualise_segments = []
-    all_clusters = []  # Stores all clusters across layers
+    all_clusters = []  
+    all_hulls = []
 
-    for layer_num in range(5):
-        new_clusters = []  # Store new clusters detected in this layer
+    for layer_num in range(2):
+        new_clusters = []  
         to_cluster = np.vstack(layers[layer_num])
         layer_height = np.mean(to_cluster[:, 2]) 
 
         # cluster = MeanShift(bandwidth=2).fit(to_cluster)
-        cluster = DBSCAN(eps=0.5, min_samples=2).fit(to_cluster)
+        cluster = DBSCAN(eps=0.3, min_samples=5, metric='euclidean').fit(to_cluster)
 
         labels = cluster.labels_
         unique_labels = np.unique(labels)
-        # centroids = cluster.cluster_centers_
 
 
         for label in unique_labels:
             cluster_points = to_cluster[labels == label]
+            
             xy_points = cluster_points[:, :2]
+            xy_points = np.unique(xy_points, axis = 0)
 
             if len(xy_points) >= 3:
                 convex_hull = ConvexHull(xy_points)
                 hull_vertices_xy = xy_points[convex_hull.vertices]
 
-                # Compute mean Z for the cluster
                 mean_z = np.mean(cluster_points[:, 2])
 
-                # Convert 2D hull to 3D by adding the mean Z value
+                # Convert 2D hull to 3D by adding mean Z value
                 hull_vertices_3d = np.column_stack((hull_vertices_xy, np.full(len(hull_vertices_xy), mean_z)))
+                all_hulls.append(hull_vertices_3d)
 
                 new_clusters.append({
                     "centroid": np.mean(cluster_points, axis=0),
@@ -143,8 +143,7 @@ def layer_stacking(points, layer_height=1, view_layers = False, view_clsuters = 
         at a height of {layer_height} metres \n \
         {len(new_clusters)} trees found on this layer")
 
-        # Merge clusters based on overlap percentage
-        overlap_threshold = 0.5
+        overlap_threshold = 0.4
         all_clusters = merge_clusters(new_clusters, all_clusters, overlap_threshold)
 
         if view_clsuters:
@@ -157,9 +156,10 @@ def layer_stacking(points, layer_height=1, view_layers = False, view_clsuters = 
                 cluster_pnt_cld.points = o3d.utility.Vector3dVector(cluster["points"])
                 cluster_pnt_cld.colors = o3d.utility.Vector3dVector([cluster["color"]] * len(cluster["points"]))
                 visualise_segments.append(cluster_pnt_cld)
-
+            
+            for hull_vertices in all_hulls:
                 # Visualizing convex hull
-                hull_vertices = cluster["hull_vertices_3d"]
+                # hull_vertices = cluster["hull_vertices_3d"]
                 hull_edges = [(i, (i + 1) % len(hull_vertices)) for i in range(len(hull_vertices))]
 
                 line_set = o3d.geometry.LineSet()
@@ -203,6 +203,7 @@ def main():
 
 
     # #---------------SEGMENTATION-----------------------
+    
     layer_stacking(points, view_clsuters  = True)
 
     #---------------OTHER---------------------------
