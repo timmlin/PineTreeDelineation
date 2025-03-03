@@ -2,7 +2,8 @@ import laspy
 import numpy as np
 import open3d as o3d
 import random
-from sklearn.cluster import DBSCAN, MeanShift, estimate_bandwidth
+from collections import defaultdict
+from sklearn.cluster import DBSCAN, KMeans, estimate_bandwidth
 from scipy.spatial import ConvexHull
 
 from tools.utils import *
@@ -34,30 +35,33 @@ def hull_overlap(hull1, hull2):
 
 
 def merge_clusters(new_clusters, all_clusters, overlap_threshold):
-    for new_cluster in new_clusters:
-        new_hull_vertices = new_cluster["convex_hull"].points[new_cluster["convex_hull"].vertices, :2]
+    
+    merged_new_clusters = set()
 
-        for existing_cluster in all_clusters:
-            existing_hull_vertices = existing_cluster["convex_hull"].points[existing_cluster["convex_hull"].vertices, :2]
+    for existing_cluster in all_clusters:  
+        existing_hull_vertices = existing_cluster["convex_hull"].points[existing_cluster["convex_hull"].vertices, :2]
 
-            # compute hull overlap
+        for i, new_cluster in enumerate(new_clusters):  
+            if i in merged_new_clusters:
+                continue  # skip already merged clusters
+
+            new_hull_vertices = new_cluster["convex_hull"].points[new_cluster["convex_hull"].vertices, :2]
             overlap_ratio = hull_overlap(ConvexHull(existing_hull_vertices), ConvexHull(new_hull_vertices))
 
             if overlap_ratio >= overlap_threshold:
-
                 # Merge cluster points
                 existing_cluster["points"] = np.vstack([existing_cluster["points"], new_cluster["points"]])
                 existing_cluster["centroid"] = np.mean(existing_cluster["points"], axis=0)
 
-                # Maintain color consistency
-                new_cluster["color"] = existing_cluster["color"]
-                break
-        else:
-            # Assign a new color if no merge occurred
-            new_cluster["color"] = np.random.rand(3)
+                merged_new_clusters.add(i)
+
+    # Add unmerged clusters as new entries
+    for i, new_cluster in enumerate(new_clusters):
+        if i not in merged_new_clusters:
             all_clusters.append(new_cluster)
 
     return all_clusters
+unique_labels
 
 
 
@@ -86,15 +90,15 @@ def layer_stacking(points, layer_height=1, view_layers = False, view_clsuters = 
             layer_cloud.colors = o3d.utility.Vector3dVector([layer_colour] * len(layer_points))
             visualise_layers.append(layer_cloud)
 
-        print(f"layer number {i} has {len(layer_points)} points ")
         layers.append(layer_points)
 
 
+
     if view_layers:
-        ground_color = [1, 0, 0]  # Red
+        ground_colour = [1, 0, 0]  # Red
         ground_pnt_cld = o3d.geometry.PointCloud()
         ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
-        ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
+        ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_colour] * len(ground_points))
         visualise_layers.append(ground_pnt_cld)
         o3d.visualization.draw_geometries(visualise_layers, window_name="Layers")
 
@@ -103,17 +107,22 @@ def layer_stacking(points, layer_height=1, view_layers = False, view_clsuters = 
     all_clusters = []  
     all_hulls = []
 
-    for layer_num in range(2):
+    for layer_num in range(num_layers):
         new_clusters = []  
         to_cluster = np.vstack(layers[layer_num])
         layer_height = np.mean(to_cluster[:, 2]) 
 
-        # cluster = MeanShift(bandwidth=2).fit(to_cluster)
-        cluster = DBSCAN(eps=0.3, min_samples=5, metric='euclidean').fit(to_cluster)
-
+        if layer_num < 3:
+            cluster = DBSCAN(eps=1, min_samples=int(np.log(len(to_cluster))), metric='euclidean').fit(to_cluster)
+        elif layer_num < 5:
+            cluster = DBSCAN(eps=0.3, min_samples= int(np.log(len(to_cluster))), metric='euclidean').fit(to_cluster)
+        else:
+            cluster = DBSCAN(eps=0.2, min_samples= int(np.log(len(to_cluster))), metric='euclidean').fit(to_cluster)
+        
+        
         labels = cluster.labels_
         unique_labels = np.unique(labels)
-
+        unique_labels = unique_labels[unique_labels != -1]  # Removes unclustered points
 
         for label in unique_labels:
             cluster_points = to_cluster[labels == label]
@@ -127,7 +136,7 @@ def layer_stacking(points, layer_height=1, view_layers = False, view_clsuters = 
 
                 mean_z = np.mean(cluster_points[:, 2])
 
-                # Convert 2D hull to 3D by adding mean Z value
+                # Convert 2D hull to 3D by adding mean Z value for visulaisation
                 hull_vertices_3d = np.column_stack((hull_vertices_xy, np.full(len(hull_vertices_xy), mean_z)))
                 all_hulls.append(hull_vertices_3d)
 
@@ -135,31 +144,33 @@ def layer_stacking(points, layer_height=1, view_layers = False, view_clsuters = 
                     "centroid": np.mean(cluster_points, axis=0),
                     "points": cluster_points,
                     "convex_hull": convex_hull,
-                    "hull_vertices_3d": hull_vertices_3d,
                 })
 
 
         print(f"Layer {layer_num} segmentation completed \n \
-        at a height of {layer_height} metres \n \
-        {len(new_clusters)} trees found on this layer")
+    at a height of {layer_height} metres \n \
+    {len(unique_labels)} trees found on this layer \n \
+    {len(to_cluster)} total points")
 
         overlap_threshold = 0.4
         all_clusters = merge_clusters(new_clusters, all_clusters, overlap_threshold)
 
+
+#---------------Visualisation-----------------------
         if view_clsuters:
             visualise_segments = []
             visualise_convex_hulls = []
 
             for cluster in all_clusters:
                 # Visualizing clusters
+                cluster_colour = np.random.rand(3)
                 cluster_pnt_cld = o3d.geometry.PointCloud()
                 cluster_pnt_cld.points = o3d.utility.Vector3dVector(cluster["points"])
-                cluster_pnt_cld.colors = o3d.utility.Vector3dVector([cluster["color"]] * len(cluster["points"]))
+                cluster_pnt_cld.colors = o3d.utility.Vector3dVector([cluster_colour] * len(cluster["points"]))
                 visualise_segments.append(cluster_pnt_cld)
             
+            # Visualizing convex hull
             for hull_vertices in all_hulls:
-                # Visualizing convex hull
-                # hull_vertices = cluster["hull_vertices_3d"]
                 hull_edges = [(i, (i + 1) % len(hull_vertices)) for i in range(len(hull_vertices))]
 
                 line_set = o3d.geometry.LineSet()
@@ -191,23 +202,21 @@ def main():
     # Convert to Open3D Point Cloud to remove noise
     pnt_cld = o3d.geometry.PointCloud()
     pnt_cld.points = o3d.utility.Vector3dVector(points)
-
     pnt_cld, _ = pnt_cld.remove_statistical_outlier(nb_neighbors=20, std_ratio=2.0)
-
+    #Convert back to np array
     points = np.asarray(pnt_cld.points)
 
+    #---------------OTHER---------------------------
+    # view_raw_cloud(points)
 
     #---------------GROUND-CLASSIFICATION--------------
     # pnt_cld = ransac_classify_ground(pnt_cld, visualise= True)
     points = classify_ground(points, visualise = False)
 
 
-    # #---------------SEGMENTATION-----------------------
-    
+    #---------------SEGMENTATION-----------------------    
     layer_stacking(points, view_clsuters  = True)
 
-    #---------------OTHER---------------------------
-    # view_raw_cloud(points)
 
 
 
