@@ -6,7 +6,7 @@ from tools.utils import *
 
 def main():
 
-    las_file = "data/UAV_sample_data/plot_31_pointcloud.las"
+    las_file = "data/SCION/plot_87_annotated.las"
     las = laspy.read(las_file)
 
     #-------------PRE-PROCESSING
