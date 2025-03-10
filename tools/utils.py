@@ -129,9 +129,19 @@ def ransac_classify_ground(pnt_cld, visualise = False):
     return 
 
 
+def save_as_las_file(points, file_name):
+    """saves the np array of points as an las file"""
 
-def classify_ground_csf():
-    ...
+    header = laspy.LasHeader(point_format=3)
+
+    las_data = laspy.LasData(header)
+
+    las_data.x = points[:,0]
+    las_data.y = points[:,1]
+    las_data.z = points[:,2]
+
+    las_data.write(file_name)
+
 
 
 

@@ -7,6 +7,7 @@ from sklearn import datasets, linear_model
 from sklearn.cluster import DBSCAN, KMeans, estimate_bandwidth
 from scipy.spatial import ConvexHull
 
+from tools.utils import save_as_las_file
 
 
 def hull_overlap(hull1, hull2):
@@ -69,11 +70,14 @@ def merge_cluster_convex_hull(cur_cluster, all_clusters, overlap_threshold):
 
 
 def merge_cluster_centroid(cur_cluster, all_clusters, distance_threshold):
+    
+
     merged = False
     new_clusters = []
 
     for existing_cluster in all_clusters:
         
+            
         cur_centroid = cur_cluster["centroid"][:2]
         existing_centroid = existing_cluster["centroid"][:2] 
         
@@ -104,7 +108,7 @@ def merge_cluster_centroid(cur_cluster, all_clusters, distance_threshold):
 
 
                 
-def layer_stacking(points, layer_height=1, view_layers=False, view_clusters=True):
+def layer_stacking(points, layer_height=1, view_layers=False, view_clusters=True, save_file = False):
     tree_points, ground_points = points
 
     layers = []
@@ -144,7 +148,7 @@ def layer_stacking(points, layer_height=1, view_layers=False, view_clusters=True
     all_clusters = []  # Holds merged clusters
     all_hulls = []
 
-    for layer_num in range(num_layers -1 ):
+    for layer_num in range(len(layers) // 2 ):
 
         new_clusters = []
 
@@ -156,12 +160,18 @@ def layer_stacking(points, layer_height=1, view_layers=False, view_clusters=True
         # Adjust DBSCAN parameters based on layer number
         if layer_num < 3:
             cluster = DBSCAN(eps=0.4, min_samples=int(np.log(len(to_cluster))), metric='euclidean').fit(to_cluster)
+            distance_threshold =  2.5
+
         elif layer_num < 5:
             cluster = DBSCAN(eps=0.3, min_samples=int(np.log(len(to_cluster))), metric='euclidean').fit(to_cluster)
-        elif layer_num < 8:
+            distance_threshold =  3
+        elif layer_num < 10:
             cluster = DBSCAN(eps=0.15, min_samples=int(np.log(len(to_cluster))) + 10, metric='euclidean').fit(to_cluster)
+            distance_threshold =  4
         else:
             cluster = DBSCAN(eps=0.3, min_samples=int(np.log(len(to_cluster))) + 10, metric='euclidean').fit(to_cluster)
+            distance_threshold =  2
+
 
         labels = cluster.labels_
         unique_labels = np.unique(labels)
@@ -191,7 +201,7 @@ def layer_stacking(points, layer_height=1, view_layers=False, view_clusters=True
 
     #-----------------MERGING---------------------------
                 
-                all_clusters = merge_cluster_centroid(new_cluster, all_clusters, 2)
+                all_clusters = merge_cluster_centroid(new_cluster, all_clusters, 2.5)
 
 
         print(f"Layer {layer_num} segmentation completed \n \
@@ -201,16 +211,17 @@ def layer_stacking(points, layer_height=1, view_layers=False, view_clusters=True
     
 
     #--------------POST-PROCESSING----------------
-    # final_clusters = []
-    # for cluster in all_clusters:
-    #     if len(cluster["points"]) >= 100:
-    #         final_clusters.append(cluster)
+    final_clusters = []
+    for cluster in all_clusters:
+        if len(cluster["points"]) >= 100:
+            final_clusters.append(cluster)
+    print(f"total number of trees: {len(final_clusters)}")
     #---------------Visualisation-----------------------
     if view_clusters:
         visualise_segments = []
         visualise_convex_hulls = []
 
-        for cluster in all_clusters:
+        for cluster in final_clusters:
             # Visualizing clusters
             cluster_colour = np.random.rand(3)
             cluster_pnt_cld = o3d.geometry.PointCloud()
@@ -219,22 +230,23 @@ def layer_stacking(points, layer_height=1, view_layers=False, view_clusters=True
             visualise_segments.append(cluster_pnt_cld)
         
         # Visualizing convex hull
-        for hull_vertices in all_hulls:
-            hull_edges = [(i, (i + 1) % len(hull_vertices)) for i in range(len(hull_vertices))]
+        # for hull_vertices in all_hulls:
+        #     hull_edges = [(i, (i + 1) % len(hull_vertices)) for i in range(len(hull_vertices))]
 
-            line_set = o3d.geometry.LineSet()
-            line_set.points = o3d.utility.Vector3dVector(hull_vertices)
-            line_set.lines = o3d.utility.Vector2iVector(hull_edges)
-            line_set.colors = o3d.utility.Vector3dVector([[0, 1, 0]] * len(hull_edges))
-            visualise_convex_hulls.append(line_set)
+        #     line_set = o3d.geometry.LineSet()
+        #     line_set.points = o3d.utility.Vector3dVector(hull_vertices)
+        #     line_set.lines = o3d.utility.Vector2iVector(hull_edges)
+        #     line_set.colors = o3d.utility.Vector3dVector([[0, 1, 0]] * len(hull_edges))
+        #     visualise_convex_hulls.append(line_set)
 
         # visualise_segments.extend(visualise_convex_hulls)
 
-        ground_colour = [1, 0, 0]  # Red
-        ground_pnt_cld = o3d.geometry.PointCloud()
-        ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
-        ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_colour] * len(ground_points))
-        visualise_segments.append(ground_pnt_cld)
+        # ground_colour = [1, 0, 0]  # Red
+        # ground_pnt_cld = o3d.geometry.PointCloud()
+        # ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
+        # ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_colour] * len(ground_points))
+        # visualise_segments.append(ground_pnt_cld)
 
     
-    o3d.visualization.draw_geometries(visualise_segments, window_name="segmentation")
+        o3d.visualization.draw_geometries([visualise_segments[40]], window_name="segmentation")
+

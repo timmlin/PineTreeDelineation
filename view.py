@@ -6,7 +6,7 @@ from tools.utils import *
 
 def main():
 
-    las_file = "data/SCION/plot_87_annotated.las"
+    las_file = "output.las"
     las = laspy.read(las_file)
 
     #-------------PRE-PROCESSING

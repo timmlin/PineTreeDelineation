@@ -2,6 +2,7 @@ import laspy
 import numpy as np
 import open3d as o3d
 import random
+import time
 
 from sklearn import datasets, linear_model
 from sklearn.cluster import DBSCAN
@@ -20,6 +21,7 @@ from tools.layer_stacking import layer_stacking
 
 def main():
 
+    start_time = time.time()
     plot_31_las_file = "data/UAV_sample_data/plot_31_pointcloud.las"
     plot_87_las_file = 'data/SCION/plot_87_annotated.las'
     las = laspy.read(plot_31_las_file)
@@ -46,11 +48,21 @@ def main():
 
 
     #---------------SEGMENTATION-----------------------    
-    layer_stacking(points, view_clusters  = True)
+    layer_stacking(points, view_clusters  = False)
+
+    end_time = time.time()
+
+    print(f"time taken: {end_time - start_time} seconds")
+
+
+
 
 
 
 
     
-main()
+# main()
+
+
+view_raw_cloud('output.las')
 
