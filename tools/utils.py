@@ -3,6 +3,8 @@ import numpy as np
 import open3d as o3d
 import os
 
+from sklearn.linear_model import RANSACRegressor
+from sklearn.svm import SVR
 #-------------------------PRE--PROCESSING----------------------
 
 def noramlise_las(las):
@@ -33,15 +35,12 @@ def noramlise_las(las):
     return las
 
 
+#------------------GROUND-CLASSIFICATION---------------------
 
 
-def classify_ground_threshold(points, visualise=False):
+def classify_ground_threshold(points, z_threshold, visualise=False):
     """
     Classifies the ground points based on the z-value (height) of points.
-
-    Args:
-        pnt_cld (open3d.cuda.pybind.geometry.PointCloud): An Open3D point cloud.
-        visualise (bool, optional): If True, the classified point cloud will be visualized. Defaults to False.
 
     Returns:
         clouds (list): A list containing the ground and non ground points arrays.
@@ -51,8 +50,6 @@ def classify_ground_threshold(points, visualise=False):
 
 
     # points = np.asarray(pnt_cld.points)
-
-    z_threshold = 1
     
     ground_points_mask = points[:, 2] <= z_threshold
     non_ground_points_mask = points[:, 2] > z_threshold
@@ -80,55 +77,122 @@ def classify_ground_threshold(points, visualise=False):
 
     return clouds
 
-
-def ransac_classify_ground(pnt_cld, visualise = False):
+def ransac_classify_ground(points, threshold=0.40, visualise=False):
     """
-    classifies the ground points of an Open3D Point Cloud using the RANSAC algorithm
+    Classifies the ground points of an Open3D Point Cloud using the RANSAC algorithm.
 
     Args:
-        pnt_cld (open3d.cuda.pybind.geometry.PointCloud): an Open3D point cloud.
-        visulaise (bool): flag that determines if the point cloud will be visulaised afer classification
+        points (numpy.ndarray): A numpy array of shape (N, 3) representing the point cloud,
+                                with columns representing x, y, z coordinates.
+        threshold (float): The maximum distance from the plane to classify a point as ground.
+        visualize (bool): If True, visualizes the ground and non-ground points using Open3D.
 
     Returns:
-        las open3d.cuda.pybind.geometry.PointCloud: an Open3D point cloud with classified ground points.
-
+        list: A list containing two numpy arrays: ground points and non-ground points.
     """
-
-
-    clouds = []
-
-    # Plane segmentation to detect ground
-    plane_model, inliers = pnt_cld.segment_plane(distance_threshold=0.5, ransac_n=3, num_iterations=1000)
-
-
-    # Extract ground points and non-ground points
-    non_ground_points = np.asarray(pnt_cld.points)[~np.isin(np.arange(len(pnt_cld.points)), inliers)]
-    clouds.append(non_ground_points)
     
-    ground_points = np.asarray(pnt_cld.points)[inliers]
-    clouds.append(ground_points)
+    #checks the bottom 30% of points for ground
+    points_sorted = points[points[:, 2].argsort()]
+    possible_ground_points = points_sorted[: int(len(points) * 0.3)]
 
+    x = possible_ground_points[:, :2]  
+    z = possible_ground_points[:, 2]   
 
+    ransac = RANSACRegressor()
+    ransac.fit(x, z)
+    prediction = ransac.predict(x)
 
-    
+    distances = np.abs(z - prediction)
+
+    ground_mask = distances < threshold
+
+    # Predict ground for the whole point cloud using the RANSAC model
+    prediction_full = ransac.predict(points[:, :2] )
+
+    # Compute the distance between all points and the fitted plane
+    distances_full = np.abs(points[:, 2] - prediction_full)
+
+    # Create a mask for ground points in the whole point cloud
+    ground_mask_full = distances_full < threshold
+
+    ground_points = points[ground_mask_full]
+    non_ground_points = points[~ground_mask_full]
+
+    # Store ground and non-ground points in a list
+    clouds = [ground_points, non_ground_points]
+
     if visualise:
-    
-        #creates an open3d point cloud of ground points
-        non_ground_pnt_cld = o3d.geometry.PointCloud()
-        non_ground_pnt_cld.points = o3d.utility.Vector3dVector(non_ground_points)
-    
-        # #creates an open3d point cloud of ground points
-        ground_color = [1, 0, 0] #red
+        ground_color = [1, 0, 0] # Red 
+
+        non_ground_color = [0, 0, 1] #Blue 
+
+        # Create Open3D point clouds for visualization
         ground_pnt_cld = o3d.geometry.PointCloud()
         ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
         ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
-        
-        
+
+        non_ground_pnt_cld = o3d.geometry.PointCloud()
+        non_ground_pnt_cld.points = o3d.utility.Vector3dVector(non_ground_points)
+        non_ground_pnt_cld.colors = o3d.utility.Vector3dVector([non_ground_color] * len(non_ground_points))
+
+        # Visualize the classified point clouds
         o3d.visualization.draw_geometries([ground_pnt_cld, non_ground_pnt_cld])
 
-    return 
+    return clouds
+
+def svr_classify_ground(points, threshold = 0.2, visualise = False):
+
+    #checks the bottom 30% of points for ground
+    points_sorted = points[points[:, 2].argsort()]
+    possible_ground_points = points_sorted[: int(len(points) * 0.3)]
+
+    x = possible_ground_points[:, :2]  
+    z = possible_ground_points[:, 2]   
+
+    svr = SVR(kernel='rbf')   
+    svr.fit(x,z)
+    prediction = svr.predict(x)
+
+    distances = np.abs(z - prediction)
+
+    ground_mask = distances < threshold
+
+    # Predict ground for the whole point cloud using the SVR model
+    prediction_full = svr.predict(points[:, :2] )
+
+    # Compute the distance between all points and the fitted plane
+    distances_full = np.abs(points[:, 2] - prediction_full)
+
+    # Create a mask for ground points in the whole point cloud
+    ground_mask_full = distances_full < threshold
+
+    ground_points = points[ground_mask_full]
+    non_ground_points = points[~ground_mask_full]
+
+    # Store ground and non-ground points in a list
+    clouds = [ground_points, non_ground_points]
+
+    if visualise:
+        ground_color = [1, 0, 0] # Red 
+        non_ground_color = [0, 0, 1] #Blue 
+
+        # Create Open3D point clouds for visualization
+        ground_pnt_cld = o3d.geometry.PointCloud()
+        ground_pnt_cld.points = o3d.utility.Vector3dVector(ground_points)
+        ground_pnt_cld.colors = o3d.utility.Vector3dVector([ground_color] * len(ground_points))
+
+        non_ground_pnt_cld = o3d.geometry.PointCloud()
+        non_ground_pnt_cld.points = o3d.utility.Vector3dVector(non_ground_points)
+        non_ground_pnt_cld.colors = o3d.utility.Vector3dVector([non_ground_color] * len(non_ground_points))
+
+        # Visualize the classified point clouds
+        o3d.visualization.draw_geometries([ground_pnt_cld, non_ground_pnt_cld])
+
+    return clouds
 
 
+
+#---------------------MISC------------------------
 def save_as_las_file(points, file_name):
     """saves the np array of points as an las file"""
 

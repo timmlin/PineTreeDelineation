@@ -3,13 +3,14 @@ import numpy as np
 import open3d as o3d
 import random
 import time
+import os
+import subprocess
+import sys
+import re
 
-from sklearn import datasets, linear_model
 from sklearn.cluster import DBSCAN
-from scipy.spatial import ConvexHull
 
 from tools.utils import *
-
 from tools.layer_stacking import layer_stacking
 
 
@@ -17,14 +18,12 @@ from tools.layer_stacking import layer_stacking
 
 
 
-
-
-def main():
+def main(filename):
 
     start_time = time.time()
-    plot_31_las_file = "data/UAV_sample_data/plot_31_pointcloud.las"
-    plot_87_las_file = 'data/SCION/plot_87_annotated.las'
-    las = laspy.read(plot_31_las_file)
+    
+
+    las = laspy.read(filename)
     #-------------PRE-PROCESSING
     
     las = noramlise_las(las)
@@ -42,27 +41,14 @@ def main():
     # view_raw_cloud(points)
     
     #---------------GROUND-CLASSIFICATION--------------
-    # points = ransac_classify_ground(pnt_cld, visualise= True)
-    points = classify_ground_threshold(points, visualise = False)
+    points = svr_classify_ground(points, visualise= True)
+    # points = classify_ground_threshold(points, 2, visualise = False)
     # points = classify_ground_csf(points)
 
 
     #---------------SEGMENTATION-----------------------    
-    layer_stacking(points, view_clusters  = False)
+    # layer_stacking(points, view_clusters  = True)
 
     end_time = time.time()
 
     print(f"time taken: {end_time - start_time} seconds")
-
-
-
-
-
-
-
-    
-# main()
-
-
-view_raw_cloud('output.las')
-
