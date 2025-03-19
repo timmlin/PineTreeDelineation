@@ -1,0 +1,566 @@
+data/Rolleston Forest plots/plot_2_3_4_5.las
+tree tops counted 178
+tree tops counted 178
+tree tops counted 178
+tree tops counted 178
+tree tops counted 178
+tree tops counted 178
+tree tops counted 178
+tree tops counted 178
+tree tops counted 177
+tree tops counted 177
+tree tops counted 175
+tree tops counted 175
+tree tops counted 169
+tree tops counted 163
+tree tops counted 163
+tree tops counted 160
+tree tops counted 149
+time taken: 5.328476428985596 seconds 
+
+
+data/Rolleston Forest plots/plot_8_9.las
+tree tops counted 320
+tree tops counted 320
+tree tops counted 320
+tree tops counted 320
+tree tops counted 320
+tree tops counted 320
+tree tops counted 320
+tree tops counted 320
+tree tops counted 320
+tree tops counted 315
+tree tops counted 303
+tree tops counted 295
+tree tops counted 292
+tree tops counted 281
+tree tops counted 255
+tree tops counted 232
+tree tops counted 227
+tree tops counted 185
+time taken: 14.983970165252686 seconds 
+
+
+data/Rolleston Forest plots/plot_7.las
+tree tops counted 126
+tree tops counted 126
+tree tops counted 126
+tree tops counted 126
+tree tops counted 126
+tree tops counted 126
+tree tops counted 126
+tree tops counted 126
+tree tops counted 126
+tree tops counted 126
+tree tops counted 125
+tree tops counted 123
+tree tops counted 123
+tree tops counted 120
+tree tops counted 120
+tree tops counted 118
+tree tops counted 117
+tree tops counted 107
+time taken: 4.882377624511719 seconds 
+
+
+data/Rolleston Forest plots/plot_46_47_48.las
+tree tops counted 297
+tree tops counted 297
+tree tops counted 297
+tree tops counted 297
+tree tops counted 297
+tree tops counted 297
+tree tops counted 297
+tree tops counted 297
+tree tops counted 297
+tree tops counted 297
+tree tops counted 297
+tree tops counted 295
+tree tops counted 275
+tree tops counted 251
+tree tops counted 226
+tree tops counted 204
+tree tops counted 186
+tree tops counted 141
+time taken: 10.777540922164917 seconds 
+
+
+data/Rolleston Forest plots/plot_41_42_43.las
+tree tops counted 266
+tree tops counted 266
+tree tops counted 266
+tree tops counted 266
+tree tops counted 266
+tree tops counted 266
+tree tops counted 266
+tree tops counted 266
+tree tops counted 266
+tree tops counted 266
+tree tops counted 264
+tree tops counted 264
+tree tops counted 255
+tree tops counted 254
+tree tops counted 243
+tree tops counted 231
+tree tops counted 218
+tree tops counted 214
+tree tops counted 178
+time taken: 11.688466310501099 seconds 
+
+
+data/Rolleston Forest plots/plot_6.las
+tree tops counted 124
+tree tops counted 124
+tree tops counted 124
+tree tops counted 124
+tree tops counted 124
+tree tops counted 124
+tree tops counted 124
+tree tops counted 124
+tree tops counted 124
+tree tops counted 124
+tree tops counted 124
+tree tops counted 123
+tree tops counted 121
+tree tops counted 121
+tree tops counted 114
+tree tops counted 112
+tree tops counted 102
+tree tops counted 91
+tree tops counted 74
+time taken: 3.724416494369507 seconds 
+
+
+data/Rolleston Forest plots/plot_19.las
+tree tops counted 141
+tree tops counted 141
+tree tops counted 141
+tree tops counted 141
+tree tops counted 141
+tree tops counted 141
+tree tops counted 141
+tree tops counted 141
+tree tops counted 141
+tree tops counted 141
+tree tops counted 136
+tree tops counted 122
+tree tops counted 112
+tree tops counted 101
+tree tops counted 91
+tree tops counted 83
+tree tops counted 82
+tree tops counted 70
+time taken: 3.028017044067383 seconds 
+
+
+data/Rolleston Forest plots/plot_18.las
+tree tops counted 183
+tree tops counted 183
+tree tops counted 183
+tree tops counted 183
+tree tops counted 183
+tree tops counted 183
+tree tops counted 183
+tree tops counted 183
+tree tops counted 176
+tree tops counted 168
+tree tops counted 151
+tree tops counted 130
+tree tops counted 115
+tree tops counted 105
+tree tops counted 99
+tree tops counted 94
+tree tops counted 82
+time taken: 4.004772424697876 seconds 
+
+
+data/Rolleston Forest plots/plot_26_28.las
+tree tops counted 217
+tree tops counted 217
+tree tops counted 217
+tree tops counted 217
+tree tops counted 217
+tree tops counted 217
+tree tops counted 217
+tree tops counted 217
+tree tops counted 217
+tree tops counted 215
+tree tops counted 207
+tree tops counted 182
+tree tops counted 182
+tree tops counted 169
+tree tops counted 157
+tree tops counted 148
+tree tops counted 144
+tree tops counted 133
+time taken: 7.955271244049072 seconds 
+
+
+data/Rolleston Forest plots/plot_12_13_14.las
+tree tops counted 260
+tree tops counted 260
+tree tops counted 260
+tree tops counted 260
+tree tops counted 260
+tree tops counted 260
+tree tops counted 260
+tree tops counted 260
+tree tops counted 260
+tree tops counted 253
+tree tops counted 243
+tree tops counted 225
+tree tops counted 219
+tree tops counted 215
+tree tops counted 212
+tree tops counted 200
+tree tops counted 185
+tree tops counted 131
+time taken: 10.463309288024902 seconds 
+
+
+data/Rolleston Forest plots/plot_17.las
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 112
+tree tops counted 108
+tree tops counted 104
+tree tops counted 97
+tree tops counted 92
+tree tops counted 91
+tree tops counted 89
+tree tops counted 89
+tree tops counted 70
+time taken: 5.757975101470947 seconds 
+
+
+data/Rolleston Forest plots/plot_22.las
+tree tops counted 114
+tree tops counted 114
+tree tops counted 114
+tree tops counted 114
+tree tops counted 114
+tree tops counted 114
+tree tops counted 114
+tree tops counted 114
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 112
+tree tops counted 103
+tree tops counted 88
+tree tops counted 70
+tree tops counted 63
+tree tops counted 46
+time taken: 3.035257339477539 seconds 
+
+
+data/Rolleston Forest plots/plot_1.las
+tree tops counted 154
+tree tops counted 154
+tree tops counted 154
+tree tops counted 154
+tree tops counted 154
+tree tops counted 154
+tree tops counted 154
+tree tops counted 154
+tree tops counted 153
+tree tops counted 153
+tree tops counted 152
+tree tops counted 151
+tree tops counted 151
+tree tops counted 144
+tree tops counted 135
+tree tops counted 133
+tree tops counted 104
+time taken: 6.16782283782959 seconds 
+
+
+data/Rolleston Forest plots/plot_20.las
+tree tops counted 130
+tree tops counted 130
+tree tops counted 130
+tree tops counted 130
+tree tops counted 130
+tree tops counted 130
+tree tops counted 130
+tree tops counted 130
+tree tops counted 130
+tree tops counted 128
+tree tops counted 121
+tree tops counted 114
+tree tops counted 113
+tree tops counted 107
+tree tops counted 101
+tree tops counted 97
+tree tops counted 95
+tree tops counted 84
+time taken: 4.638855934143066 seconds 
+
+
+data/Rolleston Forest plots/plot_21.las
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 113
+tree tops counted 112
+tree tops counted 109
+tree tops counted 104
+tree tops counted 84
+tree tops counted 79
+tree tops counted 78
+tree tops counted 73
+tree tops counted 48
+time taken: 3.012125015258789 seconds 
+
+
+data/Rolleston Forest plots/plot_23.las
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 77
+tree tops counted 76
+tree tops counted 76
+tree tops counted 76
+tree tops counted 76
+tree tops counted 71
+time taken: 3.5243983268737793 seconds 
+
+
+data/Rolleston Forest plots/plot_45.las
+tree tops counted 46
+tree tops counted 46
+tree tops counted 46
+tree tops counted 46
+tree tops counted 46
+tree tops counted 46
+tree tops counted 46
+tree tops counted 46
+tree tops counted 45
+tree tops counted 44
+tree tops counted 44
+tree tops counted 40
+tree tops counted 33
+tree tops counted 33
+tree tops counted 33
+tree tops counted 33
+tree tops counted 31
+time taken: 0.4923570156097412 seconds 
+
+
+data/Rolleston Forest plots/plot_24.las
+tree tops counted 128
+tree tops counted 128
+tree tops counted 128
+tree tops counted 128
+tree tops counted 128
+tree tops counted 128
+tree tops counted 128
+tree tops counted 128
+tree tops counted 127
+tree tops counted 127
+tree tops counted 125
+tree tops counted 116
+tree tops counted 109
+tree tops counted 99
+tree tops counted 88
+tree tops counted 74
+tree tops counted 62
+tree tops counted 47
+time taken: 4.873859405517578 seconds 
+
+
+data/Rolleston Forest plots/plot_10_11.las
+tree tops counted 321
+tree tops counted 321
+tree tops counted 321
+tree tops counted 321
+tree tops counted 321
+tree tops counted 321
+tree tops counted 321
+tree tops counted 321
+tree tops counted 321
+tree tops counted 318
+tree tops counted 314
+tree tops counted 300
+tree tops counted 282
+tree tops counted 273
+tree tops counted 262
+tree tops counted 256
+tree tops counted 248
+tree tops counted 204
+time taken: 21.489585876464844 seconds 
+
+
+data/Rolleston Forest plots/plot_44.las
+tree tops counted 69
+tree tops counted 69
+tree tops counted 69
+tree tops counted 69
+tree tops counted 69
+tree tops counted 69
+tree tops counted 69
+tree tops counted 69
+tree tops counted 65
+tree tops counted 61
+tree tops counted 57
+tree tops counted 56
+tree tops counted 50
+tree tops counted 49
+tree tops counted 46
+tree tops counted 46
+tree tops counted 40
+time taken: 1.1929130554199219 seconds 
+
+
+data/Rolleston Forest plots/plot_25_27.las
+tree tops counted 189
+tree tops counted 189
+tree tops counted 189
+tree tops counted 189
+tree tops counted 189
+tree tops counted 189
+tree tops counted 189
+tree tops counted 189
+tree tops counted 189
+tree tops counted 189
+tree tops counted 181
+tree tops counted 179
+tree tops counted 173
+tree tops counted 159
+tree tops counted 153
+tree tops counted 150
+tree tops counted 144
+tree tops counted 140
+time taken: 7.90943455696106 seconds 
+
+
+data/Rolleston Forest plots/plot_39_37.las
+tree tops counted 224
+tree tops counted 224
+tree tops counted 224
+tree tops counted 224
+tree tops counted 224
+tree tops counted 224
+tree tops counted 224
+tree tops counted 223
+tree tops counted 223
+tree tops counted 223
+tree tops counted 219
+tree tops counted 216
+tree tops counted 205
+tree tops counted 185
+tree tops counted 170
+tree tops counted 162
+tree tops counted 149
+tree tops counted 116
+time taken: 11.23511528968811 seconds 
+
+
+data/Rolleston Forest plots/plot_40_38.las
+tree tops counted 244
+tree tops counted 244
+tree tops counted 244
+tree tops counted 244
+tree tops counted 244
+tree tops counted 244
+tree tops counted 244
+tree tops counted 244
+tree tops counted 244
+tree tops counted 242
+tree tops counted 234
+tree tops counted 221
+tree tops counted 212
+tree tops counted 195
+tree tops counted 186
+tree tops counted 175
+tree tops counted 162
+tree tops counted 142
+time taken: 13.437946557998657 seconds 
+
+
+data/Rolleston Forest plots/plot_15_16.las
+tree tops counted 168
+tree tops counted 168
+tree tops counted 168
+tree tops counted 168
+tree tops counted 168
+tree tops counted 168
+tree tops counted 168
+tree tops counted 168
+tree tops counted 165
+tree tops counted 158
+tree tops counted 148
+tree tops counted 142
+tree tops counted 141
+tree tops counted 134
+tree tops counted 131
+tree tops counted 130
+tree tops counted 112
+time taken: 6.561447620391846 seconds 
+
+
+data/Rolleston Forest plots/plot_29_30_31_33_34_35.las
+tree tops counted 277
+tree tops counted 277
+tree tops counted 277
+tree tops counted 277
+tree tops counted 277
+tree tops counted 277
+tree tops counted 277
+tree tops counted 277
+tree tops counted 277
+tree tops counted 277
+tree tops counted 276
+tree tops counted 276
+tree tops counted 262
+tree tops counted 261
+tree tops counted 258
+tree tops counted 251
+tree tops counted 239
+tree tops counted 208
+time taken: 15.303635358810425 seconds 
+
+
+data/Rolleston Forest plots/plot_32_36.las
+tree tops counted 282
+tree tops counted 282
+tree tops counted 282
+tree tops counted 282
+tree tops counted 282
+tree tops counted 282
+tree tops counted 282
+tree tops counted 282
+tree tops counted 282
+tree tops counted 282
+tree tops counted 271
+tree tops counted 257
+tree tops counted 240
+tree tops counted 226
+tree tops counted 210
+tree tops counted 196
+tree tops counted 179
+tree tops counted 118
+time taken: 14.588026523590088 seconds 
+
+

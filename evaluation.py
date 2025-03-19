@@ -9,6 +9,12 @@ import re
 
 
 from tools.utils import *
+from tools.layer_stacking import layer_stacking
+
+
+sparse = [22,21,23,24,6,7,1,12,46,47,48,41,32,36,31,35]
+med = [19,18,20,17,9,11,8,10,40,38,39,37,26,28,25,27,44,45]
+dense = [4,5,2,3,14,13,16,15,43,42,29,30,33,34]
 
 def las_summary(filename):
 
@@ -75,9 +81,58 @@ def get_ground_execution_times(filename):
 
 
 
+# directory = 'data/Rolleston Forest plots'
+
+# with open("groud_eval.txt", 'w') as output_file:
+#     sys.stdout = output_file
+
+#     for filename in os.listdir(directory):
+#         if re.match(r'^plot(?:_\d+)+\.las$', filename):
+#             file_path = os.path.join(directory, filename)
+
+#             if os.path.isfile(file_path):
+#                 get_ground_execution_times(file_path)
+#                 print()
+
+
+
+
+def layer_stacking_eval(filename):
+
+    las = laspy.read(filename)
+    #-------------PRE-PROCESSING
+    
+    las = noramlise_las(las)
+
+    points = np.vstack((las.x, las.y, las.z)).T
+
+    # Convert to Open3D Point Cloud to remove noise
+    pnt_cld = o3d.geometry.PointCloud()
+    pnt_cld.points = o3d.utility.Vector3dVector(points)
+    pnt_cld, _ = pnt_cld.remove_statistical_outlier(nb_neighbors=10, std_ratio=2.0)
+    #Convert back to np array
+    points = np.asarray(pnt_cld.points)
+
+    #---------------OTHER---------------------------
+    # view_raw_cloud(points)
+    
+    #---------------GROUND-CLASSIFICATION--------------
+    points = classify_ground_threshold(points, 1, visualise = False)
+
+
+    #---------------SEGMENTATION-----------------------    
+    print(filename)
+    start_time = time.time()
+    layer_stacking(points, view_layers = False, view_clusters  = False)
+    end_time = time.time()
+
+    print(f"time taken: {end_time - start_time} seconds \n")
+
+
+
 directory = 'data/Rolleston Forest plots'
 
-with open("groud_eval.txt", 'w') as output_file:
+with open("layer_stacking_eval.txt", 'w') as output_file:
     sys.stdout = output_file
 
     for filename in os.listdir(directory):
@@ -85,6 +140,7 @@ with open("groud_eval.txt", 'w') as output_file:
             file_path = os.path.join(directory, filename)
 
             if os.path.isfile(file_path):
-                get_ground_execution_times(file_path)
+                layer_stacking_eval(file_path)
                 print()
 
+# layer_stacking_eval('data/Rolleston Forest plots/plot_44.las')

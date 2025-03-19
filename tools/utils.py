@@ -228,8 +228,6 @@ def save_as_las_file(points, file_name):
 
 
 
-
-
     
 def view_raw_cloud(points):
     pnt_cld = o3d.geometry.PointCloud()

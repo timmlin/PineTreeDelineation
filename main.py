@@ -17,7 +17,6 @@ from tools.layer_stacking import layer_stacking
 
 
 
-
 def main(filename):
 
     start_time = time.time()
@@ -41,14 +40,19 @@ def main(filename):
     # view_raw_cloud(points)
     
     #---------------GROUND-CLASSIFICATION--------------
-    points = svr_classify_ground(points, visualise= True)
-    # points = classify_ground_threshold(points, 2, visualise = False)
-    # points = classify_ground_csf(points)
-
+    # points = svr_classify_ground(points, visualise= True)
+    points = classify_ground_threshold(points, 1, visualise = False)
 
     #---------------SEGMENTATION-----------------------    
-    # layer_stacking(points, view_clusters  = True)
+    layer_stacking(points, view_layers = False, view_clusters  = True)
 
     end_time = time.time()
 
     print(f"time taken: {end_time - start_time} seconds")
+
+
+
+
+
+
+main('data/Rolleston Forest plots/plot_26_28.las')
