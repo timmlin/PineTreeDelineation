@@ -132,15 +132,15 @@ def layer_stacking_eval(filename):
 
 directory = 'data/Rolleston Forest plots'
 
-with open("layer_stacking_eval.txt", 'w') as output_file:
-    sys.stdout = output_file
+# with open("layer_stacking_eval.txt", 'w') as output_file:
+    # sys.stdout = output_file
 
-    for filename in os.listdir(directory):
-        if re.match(r'^plot(?:_\d+)+\.las$', filename):
-            file_path = os.path.join(directory, filename)
+for filename in os.listdir(directory):
+    if re.match(r'^plot(?:_\d+)+\.las$', filename):
+        file_path = os.path.join(directory, filename)
 
-            if os.path.isfile(file_path):
-                layer_stacking_eval(file_path)
-                print()
+        if os.path.isfile(file_path):
+            print(filename)
+            las_summary(file_path)
+            print()
 
-# layer_stacking_eval('data/Rolleston Forest plots/plot_44.las')

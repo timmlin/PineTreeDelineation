@@ -44,15 +44,12 @@ def main(filename):
     points = classify_ground_threshold(points, 1, visualise = False)
 
     #---------------SEGMENTATION-----------------------    
-    layer_stacking(points, view_layers = False, view_clusters  = True)
+    layer_stacking(points, layer_height = 1, view_layers = False, view_clusters  = True)
 
     end_time = time.time()
 
     print(f"time taken: {end_time - start_time} seconds")
 
+    
 
-
-
-
-
-main('data/Rolleston Forest plots/plot_26_28.las')
+main('data/Rolleston Forest plots/plot_45.las')
