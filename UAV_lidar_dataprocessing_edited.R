@@ -7,18 +7,30 @@ library(RCSF)
 library(terra)
 library(lidRmetrics)
 
+command_line = FALSE
 
+if (command_line) {
+  args <- commandArgs(trailingOnly = TRUE)
+  
+  LASfile_name <- args[1]
+  LASfile_dir  <- args[2]
+  
+  
+} else {
 # The directory path of the LAS file
 LASfile_dir <- "data/rolleston_forest_plots"
 
 # Define name of the LAS file
-LASfile_name <- "plot_1.las"
+LASfile_name <- "plot_2_3_4_5.las"
+  
+}
+
 
 # Remove file extension if present
 LASfile_base <- file_path_sans_ext(LASfile_name)
 
 # Define output directory
-outpath <- file.path(LASfile_dir, paste0("outputs/", LASfile_base, "_outputs"))
+outpath <- file.path(paste0("outputs/", LASfile_base, "_outputs"))
 
 # Create the output directory if it doesn't exist
 dir.create(outpath, recursive = TRUE, showWarnings = FALSE)
@@ -32,19 +44,15 @@ make_plot = FALSE
 print(outpath)
 print(output_file)
 
-# Redirect output to the summary txt file
-sink(output_file)
 
 
 las <- readLAS(file.path(LASfile_dir, LASfile_name))
-print(las)
-summary(las)
-las_check(las)
-las<- filter_duplicates(las)
 
-#stop redirecting output
-sink()
+
+las<- filter_duplicates(las)
+las_check(las)
 #######################################################
+start_time = Sys.time()
 
 ctg = readLAScatalog(file.path(LASfile_dir, LASfile_name))
 if (make_plot) {
@@ -232,7 +240,12 @@ plot(las, bg = "white", size = 4, color = "treeID")
   
 }
 
+end_time = Sys.time()
+elapsed_seconds <- as.numeric(end_time - start_time, units = "secs")
+
 
 sink(output_file)
-num_ttops
+length(num_ttops)
+print(elapsed_seconds)
+summary(las)
 sink()
