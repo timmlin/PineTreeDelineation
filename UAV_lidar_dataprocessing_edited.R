@@ -12,19 +12,21 @@ library(lidRmetrics)
 LASfile_dir <- "data/rolleston_forest_plots"
 
 # Define name of the LAS file
-LASfile_name <- "plot_22.las"
+LASfile_name <- "plot_1.las"
 
 # Remove file extension if present
 LASfile_base <- file_path_sans_ext(LASfile_name)
 
 # Define output directory
-outpath <- file.path(LASfile_dir, paste0(LASfile_base, "_outputs"))
+outpath <- file.path(LASfile_dir, paste0("outputs/", LASfile_base, "_outputs"))
 
 # Create the output directory if it doesn't exist
 dir.create(outpath, recursive = TRUE, showWarnings = FALSE)
 
 # Create the output file path
 output_file <- file.path(outpath, paste0(LASfile_base, "_summary.txt"))
+
+make_plot = FALSE
 
 # Print paths for debugging
 print(outpath)
@@ -45,7 +47,9 @@ sink()
 #######################################################
 
 ctg = readLAScatalog(file.path(LASfile_dir, LASfile_name))
-plot(ctg)
+if (make_plot) {
+  plot(ctg)
+}
 
 plan(multisession, workers=3L)
 
@@ -62,7 +66,9 @@ opt_filter(ctg) <- ""
 opt_output_files(ctg) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_tiled")
 newctg <- catalog_retile(ctg)
 
+if (make_plot) {
 plot(newctg,chunk=TRUE)
+}
 
 # ---- Classify ground points ----
 opt_output_files(newctg) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_classifyground")
@@ -72,7 +78,9 @@ classified_ctg1 <- classify_ground(newctg, csf(class_threshold = 0.25, cloth_res
 opt_output_files(classified_ctg1) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_classifynoise")
 classified_ctg2<- classify_noise(classified_ctg1, ivf(5,6)) #Lastools same
 
+if (make_plot){
 plot(classified_ctg2,chunk=TRUE)
+}
 
 # ----- DTM -----
 opt_output_files(classified_ctg2) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_dtm")
@@ -88,10 +96,16 @@ writeRaster(dtm_mosaic, filename = file.path(outpath, paste0(LASfile_base, "_dtm
 dtm_smooth <- dtm_mosaic %>%focal(w = matrix(1, 25, 25), fun = mean, na.rm = TRUE,pad = TRUE)
 writeRaster(dtm_smooth, filename = file.path(outpath, paste0(LASfile_base, '_dtm_mosaic_smooth.tif')), overwrite = TRUE)
 
+if(make_plot){
 plot(dtm_mosaic, bg = "white") 
+}
+
 dtm_prod <- terra::terrain(dtm_mosaic, v = c("slope", "aspect"), unit = "radians")
 dtm_hillshade <- terra::shade(slope = dtm_prod$slope, aspect = dtm_prod$aspect)
+
+if (make_plot){
 plot(dtm_hillshade, col = gray(0:50/50), legend = FALSE)
+}
 
 
 remove(dtm_mosaic)# Or the variable will eat too much memory and the following process will return an error
@@ -146,14 +160,15 @@ fgauss <- function(sigma, n = ws) {
   m/sum(m)
 }
 
-chm_smooth <- terra::focal(chm_filled,w = fgauss(1, n = 5))
+chm_smooth <- terra::focal(chm_filled, w = fgauss(2, n = 7))
 names(chm_smooth) <- 'Z'
 
 chm_mosaic
+if (make_plot){
 plot(chm_mosaic, col = height.colors(50))
 plot(chm_filled, col = height.colors(50))
 plot(chm_smooth, col = height.colors(50))
-
+}
 
 writeRaster(chm_mosaic, filename = file.path(outpath, paste0(LASfile_base, '_chm_mosaic.tif')), overwrite = T)
 writeRaster(chm_filled, filename = file.path(outpath, paste0(LASfile_base, '_chm_filled.tif')), overwrite = T)
@@ -178,10 +193,12 @@ names(dsm_smooth) <- 'Z'
 writeRaster(dsm_filled, filename = file.path(outpath, paste0(LASfile_base, '_dsm_filled.tif')), overwrite = T)
 writeRaster(dsm_smooth, filename = file.path(outpath, paste0(LASfile_base, '_dsm_smooth.tif')), overwrite = T)
 
-
+if (make_plot){
+  
 plot(dsm_mosaic, col = height.colors(50))
 plot(dsm_filled, col = height.colors(50))
 plot(dsm_smooth, col = height.colors(50))
+}
 
 
 ######SuperSlow##################
@@ -199,13 +216,23 @@ all_ttops
 num_ttops<-seq(from=1,to=nrow(all_ttops))
 all_ttops$treeID<-num_ttops
 all_ttops
+if (make_plot){
 plot(all_ttops)
+  
+}
 
 opt_output_files(ctg_norm_tin) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_segmented")
-algo <- dalponte2016(chm_mosaic, all_ttops)
+algo <- dalponte2016(chm_mosaic, all_ttops, max_cr = 20, th_cr = 0.8, th_tree = 1)
 ctg_segmented <- segment_trees(ctg_norm_tin, algo)
 
 ctg_final = readLAScatalog(outpath, pattern = '_segmented.las')
 las = readLAS(ctg_final)
+if (make_plot){
 plot(las, bg = "white", size = 4, color = "treeID")
+  
+}
 
+
+sink(output_file)
+num_ttops
+sink()
