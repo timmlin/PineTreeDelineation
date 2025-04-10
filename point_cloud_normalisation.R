@@ -1,40 +1,38 @@
-setwd("C:/Users/lindb/Desktop/PineTreeDelineation")
 rm(list=ls(all=TRUE))
-#install.packages("lidR")
+library(tools) # Load tools package for file path manipulation
 library(lidR)
 library(future)
 library(RCSF)
 library(terra)
-library(lidRmetrics)
+library(tidyverse)
 
-outpath = "data/SCION/summary" 
+# The directory path of the LAS file
+LASfile_dir <- "data/SCION/UAV_lidar/grid"
 
-# Define the path to the LAS file
-LASfile <- "data/SCION/L1_mohaka_173_lidar.laz"
-
-# Extract the directory path of the LAS file
-LASfile_dir <- dirname(LASfile)
-
-# Extract file name without extension
-LASfile_name <- tools::file_path_sans_ext(basename(LASfile))
-
-# Create the output file name in the same directory as the LAS file
-output_file <- file.path(LASfile_dir, paste0(LASfile_name, "_summary.txt"))
-# Redirect output to the summary txt file
-sink(output_file)
+# Define name of the LAS file
+LASfile_name <- "tile_5_11.laz"
 
 
-las <- readLAS(LASfile)
-print(las)
-summary(las)
-las_check(las)
+# Remove file extension if present
+LASfile_base <- file_path_sans_ext(LASfile_name)
+
+# Define output directory
+outpath <- file.path(paste0("outputs/", LASfile_base, "_outputs"))
+
+# Create the output directory if it doesn't exist
+dir.create(outpath, recursive = TRUE, showWarnings = FALSE)
+
+# Create the output file path
+output_file <- file.path(outpath, paste0(LASfile_base, "_summary.txt"))
+
+
+las <- readLAS(file.path(LASfile_dir, LASfile_name))
 las<- filter_duplicates(las)
+las_check(las)
 
-#stop redirecting output
-sink()
 #######################################################
-ctg = readLAScatalog(LASfile)
-plot(ctg)
+
+ctg = readLAScatalog(file.path(LASfile_dir, LASfile_name))
 
 plan(multisession, workers=3L)
 
@@ -51,8 +49,6 @@ opt_filter(ctg) <- ""
 opt_output_files(ctg) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_tiled")
 newctg <- catalog_retile(ctg)
 
-plot(newctg,chunk=TRUE)
-
 # ---- Classify ground points ----
 opt_output_files(newctg) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_classifyground")
 classified_ctg1 <- classify_ground(newctg, csf(class_threshold = 0.25, cloth_resolution = 0.25, rigidness = 2)) #parameter setting from UBC
@@ -61,27 +57,20 @@ classified_ctg1 <- classify_ground(newctg, csf(class_threshold = 0.25, cloth_res
 opt_output_files(classified_ctg1) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_classifynoise")
 classified_ctg2<- classify_noise(classified_ctg1, ivf(5,6)) #Lastools same
 
-plot(classified_ctg2,chunk=TRUE)
-
 # ----- DTM -----
 opt_output_files(classified_ctg2) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_dtm")
-rasterize_terrain(classified_ctg2, res = 0.1, tin())
-
+rasterize_terrain(classified_ctg2, res = 0.1, tin(), overwrite=TRUE)
 
 dtm_tiles <- list.files(path = outpath, pattern = '_dtm.tif$', full.names = T)
 dtm_mosaic <- vrt(dtm_tiles, overwrite = T)
-dtm_mosaic
-writeRaster(dtm_mosaic, filename = 'dtm_mosaic.tif', overwrite = T)
+writeRaster(dtm_mosaic, filename = file.path(outpath, paste0(LASfile_base, "_dtm_mosaic.tif")), overwrite = TRUE)
 
 # ----- DTM smooth-----
 dtm_smooth <- dtm_mosaic %>%focal(w = matrix(1, 25, 25), fun = mean, na.rm = TRUE,pad = TRUE)
-writeRaster(dtm_smooth, filename = 'dtm_mosaic_smooth.tif', overwrite = T)
+writeRaster(dtm_smooth, filename = file.path(outpath, paste0(LASfile_base, '_dtm_mosaic_smooth.tif')), overwrite = TRUE)
 
-plot(dtm_mosaic, bg = "white") 
 dtm_prod <- terra::terrain(dtm_mosaic, v = c("slope", "aspect"), unit = "radians")
 dtm_hillshade <- terra::shade(slope = dtm_prod$slope, aspect = dtm_prod$aspect)
-plot(dtm_hillshade, col = gray(0:50/50), legend = FALSE)
-
 
 remove(dtm_mosaic)# Or the variable will eat too much memory and the following process will return an error
 remove(dtm_smooth)# Or the variable will eat too much memory and the following process will return an error
@@ -94,12 +83,23 @@ opt_output_files(classified_ctg2) <-  paste0(outpath, "/{XLEFT}_{YBOTTOM}_norm_t
 opt_filter(classified_ctg2) <- '-drop_as_witheld'
 ctg_norm_tin <- normalize_height(classified_ctg2, tin())
 
+# List all the normalized chunk files with the suffix _norm_tin.las
+norm_chunks <- list.files(path = outpath, pattern = '_norm_tin.las$', full.names = TRUE)
 
-#Set output file name for the normalized point cloud
-output_norm_file <- file.path(outpath, paste0(LASfile_name, "_normalized.las"))
+# Read and combine the chunks into one large point cloud
+las_list <- lapply(norm_chunks, readLAS)
 
-# Save the normalized point cloud to a new LAS file
-writeLAS(ctg_norm_tin, output_norm_file)
+# Merge the point cloud chunks into one larger LAS object
+las_combined <- do.call(rbind, las_list)
 
-# Confirm that the file has been saved
-cat("Normalized point cloud saved to:", output_norm_file, "\n")
+# Optionally, you can check the size of the combined point cloud
+print(paste("Number of points in combined point cloud:", npoints(las_combined)))
+
+# Save the reconstructed point cloud
+output_combined_file <- file.path(outpath, paste0(LASfile_base, "_norm_combined.las"))
+writeLAS(las_combined, output_combined_file)
+
+# Print a success message
+print(paste("Reconstructed normalized point cloud saved to:", output_combined_file))
+
+

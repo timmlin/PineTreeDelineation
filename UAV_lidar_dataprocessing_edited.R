@@ -1,11 +1,10 @@
-setwd("C:/Users/lindb/Desktop/PineTreeDelineation")
 rm(list=ls(all=TRUE))
 library(tools) # Load tools package for file path manipulation
 library(lidR)
 library(future)
 library(RCSF)
 library(terra)
-library(lidRmetrics)
+library(tidyverse)
 
 command_line = FALSE
 
@@ -18,10 +17,10 @@ if (command_line) {
   
 } else {
 # The directory path of the LAS file
-LASfile_dir <- "data/rolleston_forest_plots"
+LASfile_dir <- "data/SCION/UAV_lidar/grid"
 
 # Define name of the LAS file
-LASfile_name <- "plot_2_3_4_5.las"
+LASfile_name <- "tile_5_11.laz"
   
 }
 
@@ -38,7 +37,7 @@ dir.create(outpath, recursive = TRUE, showWarnings = FALSE)
 # Create the output file path
 output_file <- file.path(outpath, paste0(LASfile_base, "_summary.txt"))
 
-make_plot = FALSE
+make_plot = TRUE
 
 # Print paths for debugging
 print(outpath)
@@ -126,18 +125,6 @@ remove(dtm_smooth)# Or the variable will eat too much memory and the following p
 opt_output_files(classified_ctg2) <-  paste0(outpath, "/{XLEFT}_{YBOTTOM}_norm_tin")
 opt_filter(classified_ctg2) <- '-drop_as_witheld'
 ctg_norm_tin <- normalize_height(classified_ctg2, tin())
-
-# ---- Metrics -----
-
-opt_select(ctg_norm_tin) <- "xyz"
-opt_filter(ctg_norm_tin) <- "-drop_withheld -drop_z_below 0"
-basic <- pixel_metrics(ctg_norm_tin , ~lidRmetrics::metrics_basic(Z), res = 1)
-basic_tiles <- list.files(path = outpath, pattern = '_norm_tin.tif$', full.names = T)
-basic_mosaic <- vrt(basic_tiles, overwrite = T)
-
-writeRaster(basic_mosaic, filename = file.path(outpath, paste0(LASfile_base,'_basic_metrics.tif')), overwrite = TRUE)
-
-typeof(ctg_norm_tin)
 
 # ----- Canopy Height Model -----
 opt_output_files(ctg_norm_tin) <- paste0(outpath, "/{XLEFT}_{YBOTTOM}_chm")

@@ -12,7 +12,6 @@ from sklearn.cluster import DBSCAN
 
 from tools.utils import *
 from layered_clusters import layer_stacking
-from watershed import watershed
 
 
 
@@ -43,8 +42,6 @@ def main(filename):
     #---------------GROUND-CLASSIFICATION--------------
     points = classify_ground_threshold(points, 1, visualise = False)
 
+    layer_stacking(points)
 
-    tree_points, ground_points = points
-    watershed(tree_points, ground_points)
-
-main('data/Rolleston Forest plots/plot_45.las')
+main('data/SCION/UAV_lidar/grid/tile_5_11.laz')

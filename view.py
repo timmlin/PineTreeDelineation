@@ -60,5 +60,5 @@ def view_raw_cloud(filename):
 
 
 
-view_raw_cloud('data\Rolleston_forest_plots\plot_1.las')
+view_raw_cloud('data/SCION/UAV_lidar/grid/tile_5_11.laz')
 
