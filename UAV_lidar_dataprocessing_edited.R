@@ -17,10 +17,10 @@ if (command_line) {
   
 } else {
 # The directory path of the LAS file
-LASfile_dir <- "data/SCION/UAV_lidar/grid"
+LASfile_dir <- "data/rolleston_forest_plots"
 
 # Define name of the LAS file
-LASfile_name <- "tile_5_11.laz"
+LASfile_name <- "plot_1.las"
   
 }
 

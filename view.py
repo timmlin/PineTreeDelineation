@@ -60,5 +60,5 @@ def view_raw_cloud(filename):
 
 
 
-view_raw_cloud('data/SCION/UAV_lidar/grid/tile_5_11.laz')
+view_raw_cloud('data/4D_7_2_03b_trans2.las')
 

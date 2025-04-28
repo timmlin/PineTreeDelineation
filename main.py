@@ -13,6 +13,8 @@ from sklearn.cluster import DBSCAN
 from tools.utils import *
 from layered_clusters import layer_stacking
 
+from graph_segmentation import graph
+
 
 
 
@@ -32,16 +34,16 @@ def main(filename):
     # Convert to Open3D Point Cloud to remove noise
     pnt_cld = o3d.geometry.PointCloud()
     pnt_cld.points = o3d.utility.Vector3dVector(points)
+    pnt_cld = pnt_cld.voxel_down_sample(voxel_size=0.2)
     pnt_cld, _ = pnt_cld.remove_statistical_outlier(nb_neighbors=10, std_ratio=2.0)
     #Convert back to np array
     points = np.asarray(pnt_cld.points)
-
-    #---------------OTHER---------------------------
-    # view_raw_cloud(points)
     
     #---------------GROUND-CLASSIFICATION--------------
     points = classify_ground_threshold(points, 1, visualise = False)
 
-    layer_stacking(points)
+    graph(points)
 
-main('data/SCION/UAV_lidar/grid/tile_5_11.laz')
+    print(f'{round((time.time() - start_time), 2)} seconds')
+
+main('data/rolleston_forest_plots/plot_1.las')
