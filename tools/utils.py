@@ -3,6 +3,7 @@ import numpy as np
 import open3d as o3d
 import os
 
+import geopandas as gpd
 from sklearn.linear_model import RANSACRegressor
 from scipy.spatial import cKDTree
 
@@ -35,6 +36,30 @@ def noramlise_las(las):
 
     return las
 
+
+
+def las_summary(filename):
+
+    las = laspy.read(filename)
+    print(f"Filename: {filename}")
+    print(f"Format Version: {las.header.version}")
+    print(f"Point Format ID: {las.header.point_format.id}")
+    print(f"Number of Points: {len(las.points)}")
+
+    xmin, ymin, zmin = las.header.min
+    xmax, ymax, zmax = las.header.max
+    print(f"Extent: xmin={xmin:.2f}, xmax={xmax:.2f}, ymin={ymin:.2f}, ymax={ymax:.2f}")
+
+    # Coordinate Reference System (CRS) (if available)
+    if "WKT" in las.header.vlrs[0].description:
+        print(f"Coordinate Reference System: {las.header.vlrs[0].record_data}")
+
+    area = (xmax - xmin) * (ymax - ymin)
+    print(f"Area: {area:.2f} m²")
+
+    num_points = len(las.points)
+    density = num_points / area
+    print(f"Point Density: {density:.2f} points/m²")
 
 #------------------GROUND-CLASSIFICATION---------------------
 
@@ -150,35 +175,51 @@ def view_raw_cloud(points):
 
 
 
-def divide_laz_into_grid(input_laz, output_folder, grid_size):
-    """Divides a .laz file into a grid and saves each grid cell as a separate file."""
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-    
-    las = laspy.read(input_laz)
-    points = np.vstack((las.x, las.y, las.z)).T
-    
-    #  grid boundaries
-    min_x, max_x = np.min(las.x), np.max(las.x)
-    min_y, max_y = np.min(las.y), np.max(las.y)
-    
-    x_intervals = np.arange(min_x, max_x, grid_size)
-    y_intervals = np.arange(min_y, max_y, grid_size)
-    
-    for i, x_start in enumerate(x_intervals):
-        for j, y_start in enumerate(y_intervals):
-            x_end = x_start + grid_size
-            y_end = y_start + grid_size
-            
-            # Select points within the grid cell
-            mask = (las.x >= x_start) & (las.x < x_end) & (las.y >= y_start) & (las.y < y_end)
-            
-            if np.any(mask):
-                sub_las = laspy.create(point_format=las.header.point_format, file_version=las.header.version)
-                sub_las.points = las.points[mask]
-                
-                output_filename = os.path.join(output_folder, f"tile_{i}_{j}.laz")
-                sub_las.write(output_filename)
-                print(f"Saved: {output_filename}")
+def save_segmented_las(clusters, ground_points, filename="segmented_output.las"):
+    # Flatten clustered points and assign treeID per cluster
+    cluster_points = []
+    tree_ids = []
+
+    for tree_id, cluster in enumerate(clusters, start=1):
+        cluster_points.append(cluster["points"])
+        tree_ids.extend([tree_id] * len(cluster["points"]))
+
+    cluster_points = np.vstack(cluster_points)
+    tree_ids = np.array(tree_ids, dtype=np.uint32)
+
+    # Combine with ground points; assign treeID = 0 for ground
+    all_points = np.vstack((cluster_points, ground_points))
+    all_tree_ids = np.concatenate((tree_ids, np.zeros(len(ground_points), dtype=np.uint32)))
+
+    # Define LAS header
+    header = laspy.LasHeader(point_format=3, version="1.2")
+    header.offsets = np.min(all_points, axis=0)
+    header.scales = np.array([0.001, 0.001, 0.001])
+
+    # Create LasData and assign standard fields
+    las = laspy.LasData(header)
+    las.x = all_points[:, 0]
+    las.y = all_points[:, 1]
+    las.z = all_points[:, 2]
+
+    # Add 'treeID' as an extra dimension
+    if "treeID" not in las.point_format.extra_dimension_names:
+        treeid_dim = laspy.ExtraBytesParams(name="treeID", type=np.uint32)
+        las.add_extra_dim(treeid_dim)
+
+    las["treeID"] = all_tree_ids
+
+    las.write(filename)
+
+
+
+
+
+
+def open_shp(filename):
+
+    shp = gpd.read_file(filename)
+
+    print(len(shp))
 
 
