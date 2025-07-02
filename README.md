@@ -1,8 +1,14 @@
 # Machine Learning Based Pine Tree Segmentation
 ![Image](https://github.com/user-attachments/assets/bad41b6a-447f-4e83-982a-c6e510d692bd)
 ## Description
+## Introduction
 
-This project contains and evaluates multiple machine learning based techniques for individual tree instance segmentation from UAV LiDAR point clouds. The focus is on segmention Pinus radiata in New Zealand forests.
+This project focuses on identifying individual pine trees in New Zealand forests using aerial laser scanning and machine learning. Four instance segmentation models were developed and evaluated over the course of this study.
+
+The data is in the form of a 3D "point cloud" that represents the shape and structure of pine tree forests. Using this data, we apply and evaluate the performance of the four machine learning models to automatically detect and separate individual trees. 
+
+By comparing different methods, we aim to find out which approach works best for different types of Zealand forest environments. The goal is to make forest monitoring faster, cheaper, and non-destructive, while still providing accurate results.
+
 
 ## Table of Contents
 
@@ -11,6 +17,7 @@ This project contains and evaluates multiple machine learning based techniques f
 - [requiremnets](#requirements)
 - [Set Up](#setup)
 - [Contact](#contact)
+- [Example Usage](#Example-Usage)
 
 ## Overview
 
@@ -65,6 +72,10 @@ Dalponte2016 performed best in complex terrain (Mohaka), while Dalponte+DBSCAN w
 ```R
     install.packages(c("lidR", "future", "RCSF", "terra", "tidyverse", "dbscan", "sf"))
 ```
+
+## Example Usage
+lorum ipsum
+
 
 
 ## Cite
