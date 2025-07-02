@@ -64,5 +64,5 @@ def view_raw_cloud(filename, z_threshold=0):
 
 
 
-view_raw_cloud("data/results/layered_clusters/mohaka_segmented_las/tile_96_normalised_segmented.las")
+
 

@@ -158,25 +158,3 @@ ggplot(combined_data) +
     plot.subtitle = element_text(size = 11),
     legend.position = "bottom"
   ) 
-
-
-
-# Plot only ground truth
-ggplot(ground_truth) +
-  geom_sf(color = "grey30", shape = 4, size = 2, alpha = 0.7) +
-  labs(title = "Ground Truth Tree Tops") +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 14, face = "bold"),
-    legend.position = "none"
-  )
-
-# Plot only predicted tree top locations
-ggplot(predicted_trees_sf) +
-  geom_sf(color = "blue", shape = 16, size = 2, alpha = 0.7) +
-  labs(title = "Predicted Tree Top Locations") +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 14, face = "bold"),
-    legend.position = "none"
-  )
