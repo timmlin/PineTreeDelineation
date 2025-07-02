@@ -1,5 +1,5 @@
 # Machine Learning Based Pine Tree Segmentation
-
+![Image](https://github.com/user-attachments/assets/bad41b6a-447f-4e83-982a-c6e510d692bd)
 ## Description
 
 This project contains and evaluates multiple machine learning based techniques for individual tree instance segmentation from UAV LiDAR point clouds. The focus is on segmention Pinus radiata in New Zealand forests.
