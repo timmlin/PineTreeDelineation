@@ -69,6 +69,9 @@ Dalponte2016 performed best in complex terrain (Mohaka), while Dalponte+DBSCAN w
 
 ## Cite
 
+If you use this code or methodology in your research, please cite:
+
+> Lindbom, T. (2025). *An Evaluation of Machine Learning-Based Pine Tree Segmentation Techniques* University of Canterbury.
 
 ## Contact
 Tim Lindbom - Linkedin: https://www.linkedin.com/in/tim-lindbom/ - email: lindbomtim@gmail.com
