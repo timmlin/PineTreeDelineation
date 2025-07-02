@@ -1,6 +1,5 @@
 # Machine Learning Based Pine Tree Segmentation
 ![Image](https://github.com/user-attachments/assets/bad41b6a-447f-4e83-982a-c6e510d692bd)
-## Description
 ## Introduction
 
 This project focuses on identifying individual pine trees in New Zealand forests using aerial laser scanning and machine learning. Four instance segmentation models were developed and evaluated over the course of this study.
