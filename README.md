@@ -12,12 +12,12 @@ By comparing different methods, we aim to find out which approach works best for
 
 ## Table of Contents
 
-- [Overview](#Overview)
+- [Overview](#overview)
 - [Key Findings](#key-results)
-- [requiremnets](#requirements)
+- [Requiremnets](#requirements)
 - [Set Up](#setup)
 - [Contact](#contact)
-- [Example Usage](#Example-Usage)
+- [Example Usage](#example-usage)
 
 ## Overview
 

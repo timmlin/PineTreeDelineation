@@ -41,28 +41,41 @@ def view_segmentation(las_file_path):
 
 
 
+import numpy as np
+import open3d as o3d
+import laspy
+
 def view_raw_cloud(filename, z_threshold=0):
     # Load the LAS file
     las = laspy.read(filename)
-    las = noramlise_las(las)
+    las = noramlise_las(las)  # Assuming this is a user-defined function
+
     # Extract point coordinates
     points = np.vstack((las.x, las.y, las.z)).transpose()
 
     if z_threshold:
         max_z = np.max(points[:, 2])
-
         # Keep only the top z_threshold meters
         mask = points[:, 2] >= (max_z - z_threshold)
         points = points[mask]
 
-
-    # Create and visualize the point cloud
+    # Create the point cloud
     pnt_cld = o3d.geometry.PointCloud()
     pnt_cld.points = o3d.utility.Vector3dVector(points)
-    o3d.visualization.draw_geometries([pnt_cld])
+
+    # Set up the visualizer with black background
+    vis = o3d.visualization.Visualizer()
+    vis.create_window()
+    vis.add_geometry(pnt_cld)
+
+    opt = vis.get_render_option()
+    opt.background_color = np.array([0, 0, 0])  # Black
+
+    vis.run()
+    vis.destroy_window()
 
 
 
 
 
-
+view_raw_cloud("data/Rolleston_trial/rolleston_forest_plots/plot_1.las")

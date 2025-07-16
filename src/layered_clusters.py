@@ -88,7 +88,7 @@ def layered_clusters(points, layer_height=1, view_layers=False, view_clusters=Tr
             visualize_layer(layer_points, visualise_layers)
             
     if view_layers:
-        # visualize_ground(ground_points, visualise_layers)
+        visualize_ground(ground_points, visualise_layers)
         o3d.visualization.draw_geometries(visualise_layers, window_name="Layers")
     
     # ---------------------- Segmentation ----------------------
