@@ -3,6 +3,9 @@
 /outputs
 .vscode
 
+tools/evaluate_ground_truth.R
+tools/ground_truth.r
+
 #-----R-files-------
 
 # History files

@@ -61,7 +61,7 @@ Dalponte2016 performed best in complex terrain (Mohaka), while Dalponte+DBSCAN w
 
 1. Clone this repo:
 ```bash
-   git clone https://github.com/your-user/tree-delineation.git
+   git clone https://github.com/timmlin/tree-delineation.git
    cd tree-delineation
 ```
 2. Install reqirements
@@ -72,10 +72,74 @@ Dalponte2016 performed best in complex terrain (Mohaka), while Dalponte+DBSCAN w
     install.packages(c("lidR", "future", "RCSF", "terra", "tidyverse", "dbscan", "sf"))
 ```
 
+## Project Structure
+
+```
+.
+├── data/                # Input point cloud data (not included in repo)
+├── outputs/             # Segmented output files
+├── output_files/        # Additional output files
+├── src/
+│   ├── layered_clusters.py      # Layered Clustering implementation
+│   ├── li_segmentation.R        # Li2012 segmentation script
+│   ├── dalponte2016.R           # Dalponte2016 segmentation script
+│   ├── dalponte_dbscan.R        # Dalponte+DBSCAN hybrid script
+│   └── view.r                   # Visualization helpers
+├── tools/
+│   ├── utils.py                 # Python utility functions 
+│   ├── ground_classification.py # Ground classification helpers
+│   ├── view.py                  # Python visualization helpers
+│   ├── ground_truth.r           # R ground truth helpers
+│   └── evaluate_ground_truth.R  # R evaluation script
+├── main.py              # Main Python entry point for Layered Clustering 
+├── README.md
+└── .gitignore
+```
+
+
 ## Example Usage
-lorum ipsum
+
+### Python (Layered Clustering)
+```bash
+python main.py
+```
+- By default, this runs the layered clustering segmentation on a sample LAS file (`path-to-input-las-file`).
+- Output segmented files will be saved in the `outputs/` directory.
 
 
+### R (Li2012, Dalponte2016, Dalponte+DBSCAN)
+Open R and run, for example:
+```R
+source("src/li_segmentation.R")
+```
+- Edit the script to point to your LAS file and desired algorithm.
+- Output files will be saved in the `outputs/` directory.
+
+## Results Visualization
+
+You can visualize point clouds using the provided Python functions in `tools/view.py`:
+
+- **View a raw point cloud:**
+  ```python
+  from tools.view import view_raw_cloud
+  view_raw_cloud("raw_file.las")
+  # Optionally, you can set a z_threshold (in meters) to view only the top part of the canopy:
+  # view_raw_cloud("your_raw_file.las", z_threshold=10)
+  ```
+
+- **View a segmented point cloud:**
+  ```python
+  from tools.view import view_segmentation
+  view_segmentation("segmented_file.las")
+  # The LAS file must contain a 'treeID' field for segmentation coloring.
+  ```
+
+These functions use Open3D for interactive 3D visualization. Make sure your LAS files are normalized and, for segmentation, include the required 'treeID' attribute.
+
+## Acknowledgements
+
+- Data: Thanks to the University of Canterbury and collaborators for providing point cloud datasets.
+- Libraries: [lidR](https://github.com/Jean-Romain/lidR), [open3d](http://www.open3d.org/), [laspy](https://laspy.readthedocs.io/), [scikit-learn](https://scikit-learn.org/), [tidyverse](https://www.tidyverse.org/), and others.
 
 ## Cite
 

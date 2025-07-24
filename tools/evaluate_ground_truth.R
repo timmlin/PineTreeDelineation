@@ -1,6 +1,5 @@
 # Clear workspace and set working directory
 rm(list = ls(all = TRUE))
-setwd("/local/tli89/PineTreeDelineation")
 
 # Load required libraries
 library(lidR)

@@ -1,12 +1,6 @@
 import laspy
 import numpy as np
 import open3d as o3d
-import random
-import time
-import os
-import subprocess
-import sys
-import re
 
 from utils import *
 import matplotlib.pyplot as plt
@@ -14,8 +8,17 @@ import matplotlib.pyplot as plt
 
 
 def view_segmentation(las_file_path):
+    """
+    Visualizes a segmented LAS point cloud with treeID coloring using Open3D.
+
+    Args:
+        las_file_path (str): Path to the segmented LAS file. Must contain a 'treeID' field.
+
+    Returns:
+        None
+    """
     las = laspy.read(las_file_path)
-    las = noramlise_las(las)
+    las = offset_to_origin(las)
     points = np.vstack((las.x, las.y, las.z)).transpose()
 
 
@@ -41,14 +44,21 @@ def view_segmentation(las_file_path):
 
 
 
-import numpy as np
-import open3d as o3d
-import laspy
 
 def view_raw_cloud(filename, z_threshold=0):
+    """
+    Visualizes a raw LAS point cloud using Open3D, optionally filtering to the top z_threshold meters.
+
+    Args:
+        filename (str): Path to the raw LAS file.
+        z_threshold (float, optional): If set, only points within the top z_threshold meters are shown. Default is 0 (show all).
+
+    Returns:
+        None
+    """
     # Load the LAS file
     las = laspy.read(filename)
-    las = noramlise_las(las)  # Assuming this is a user-defined function
+    las = offset_to_origin(las)  # Assuming this is a user-defined function
 
     # Extract point coordinates
     points = np.vstack((las.x, las.y, las.z)).transpose()
@@ -78,4 +88,3 @@ def view_raw_cloud(filename, z_threshold=0):
 
 
 
-view_raw_cloud("data/Rolleston_trial/rolleston_forest_plots/plot_1.las")

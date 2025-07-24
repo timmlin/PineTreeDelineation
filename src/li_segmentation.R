@@ -1,27 +1,20 @@
 rm(list = ls(globalenv()))
-setwd("/local/tli89/PineTreeDelineation")
 # Load packages
 library(lidR)
 library(sf)
 library(terra)
 library(sys)
 
+# --- User Parameters ---
 
-lidR::set_lidr_threads(0)
+dir_to_check <- "path-to-output-directory"
+LASfile_dir <- "path-to-input-las-file"
 
-dir_to_check <- "data/results/li/mohaka_segmented_las"
-LASfile_dir <- "data/SCION/NPCs"
+# li2012 algorithm parameters
+li2012_R <- 4
+li2012_speed_up <- 5
 
-# Output CSV log file
-log_file <- file.path(LASfile_dir, "li_mohaka_segmentation_log_v2.csv")
-
-# Create a data frame to store results
-log_data <- data.frame(
-  file = character(),
-  time_seconds = numeric(),
-  tree_count = integer(),
-  stringsAsFactors = FALSE
-)
+# --- Workflow ---
 
 # Get list of LAS files
 las_files <- list.files(LASfile_dir, pattern = "\\.las$", full.names = TRUE)
@@ -41,7 +34,7 @@ for (las_path in las_files) {
     
     # Segment trees
     start.time <- Sys.time()
-    las_segmented <- segment_trees(las, li2012(R = 4, speed_up = 5))
+    las_segmented <- segment_trees(las, li2012(R = li2012_R, speed_up = li2012_speed_up))
     end.time <- Sys.time()
     
     # Count number of trees

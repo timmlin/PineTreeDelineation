@@ -3,43 +3,49 @@ import numpy as np
 import open3d as o3d
 import os
 
-import geopandas as gpd
 from sklearn.linear_model import RANSACRegressor
 from scipy.spatial import cKDTree
 
 #-------------------------PRE--PROCESSING----------------------
 
-def noramlise_las(las):
+def offset_to_origin(las):
     """
-    Normalises a point cloud (sets minimum x, y, z values to 0)
+    Shifts a point cloud so that the minimum x, y, z values are at 0 (origin).
 
     Args:
-        las (laspy.lasdata.LasData): an opened las file data.
+        las (laspy.lasdata.LasData): An opened LAS file data.
 
     Returns:
-        laspy.lasdata.LasData: normalised las data.
-
+        laspy.lasdata.LasData: Shifted LAS data.
     """
     x_min, y_min, z_min = las.x.min(), las.y.min(), las.z.min()
 
-    normalized_x = las.x - x_min
-    normalized_y = las.y - y_min
-    normalized_z = las.z - z_min
+    shifted_x = las.x - x_min
+    shifted_y = las.y - y_min
+    shifted_z = las.z - z_min
 
     # Update the LAS header to adjust the offset
     las.header.offsets = [0.0, 0.0, 0.0]  # Set the new offsets for X, Y, Z
     las.header.scales = [0.01, 0.01, 0.01]  # Keep scales small to retain precision
 
-    las.x = normalized_x
-    las.y = normalized_y
-    las.z = normalized_z
+    las.x = shifted_x
+    las.y = shifted_y
+    las.z = shifted_z
 
     return las
 
 
 
 def las_summary(filename):
+    """
+    Prints a summary of a LAS file, including format, point count, extent, CRS, area, and density.
 
+    Args:
+        filename (str): Path to the LAS file.
+
+    Returns:
+        None
+    """
     las = laspy.read(filename)
     print(f"Filename: {filename}")
     print(f"Format Version: {las.header.version}")
@@ -68,8 +74,13 @@ def classify_ground_threshold(points, z_threshold, visualise=False):
     """
     Classifies the ground points based on the z-value (height) of points.
 
+    Args:
+        points (numpy.ndarray): Array of shape (N, 3) representing the point cloud.
+        z_threshold (float): Height threshold for ground classification.
+        visualise (bool, optional): If True, visualizes the result. Default is False.
+
     Returns:
-        clouds (list): A list containing the ground and non ground points arrays.
+        list: A list containing the non-ground and ground points arrays.
     """
 
     clouds = []
@@ -108,10 +119,9 @@ def ransac_classify_ground(points, threshold=0.40, visualise=False):
     Classifies the ground points of an Open3D Point Cloud using the RANSAC algorithm.
 
     Args:
-        points (numpy.ndarray): A numpy array of shape (N, 3) representing the point cloud,
-                                with columns representing x, y, z coordinates.
-        threshold (float): The maximum distance from the plane to classify a point as ground.
-        visualize (bool): If True, visualizes the ground and non-ground points using Open3D.
+        points (numpy.ndarray): Array of shape (N, 3) representing the point cloud.
+        threshold (float): Maximum distance from the plane to classify a point as ground.
+        visualise (bool, optional): If True, visualizes the result. Default is False.
 
     Returns:
         list: A list containing two numpy arrays: ground points and non-ground points.
@@ -167,15 +177,20 @@ def ransac_classify_ground(points, threshold=0.40, visualise=False):
     return clouds
 
 
-def view_raw_cloud(points):
-    pnt_cld = o3d.geometry.PointCloud()
-    pnt_cld.points = o3d.utility.Vector3dVector(points)
-    # pnt_cld.colors = o3d.utility.Vector3dVector([centroids_colour] * len(centroids))
-    o3d.visualization.draw_geometries([pnt_cld], window_name="Point Cloud")
 
 
+def save_segmented_las(clusters, ground_points, filename):
+    """
+    Saves segmented clusters and ground points to a LAS file, assigning treeID per cluster.
 
-def save_segmented_las(clusters, ground_points, filename="segmented_output.las"):
+    Args:
+        clusters (list): List of cluster dicts, each with a 'points' key (N, 3 array).
+        ground_points (numpy.ndarray): Array of ground points.
+        filename (str): Output LAS file name.
+
+    Returns:
+        None
+    """
     # Flatten clustered points and assign treeID per cluster
     cluster_points = []
     tree_ids = []
@@ -210,16 +225,5 @@ def save_segmented_las(clusters, ground_points, filename="segmented_output.las")
     las["treeID"] = all_tree_ids
 
     las.write(filename)
-
-
-
-
-
-
-def open_shp(filename):
-
-    shp = gpd.read_file(filename)
-
-    print(len(shp))
 
 

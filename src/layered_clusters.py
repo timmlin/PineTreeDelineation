@@ -8,6 +8,16 @@ from sklearn.cluster import DBSCAN, KMeans
 
 
 def merge_cluster_centroid(current_clusters, all_clusters):
+    """
+    Merges clusters from the current layer with clusters from all previous layers based on centroid proximity.
+
+    Args:
+        current_clusters (list): List of cluster dicts for the current layer, each with 'points' and 'centroid'.
+        all_clusters (list): List of cluster dicts from previous layers.
+
+    Returns:
+        list: Updated list of merged clusters.
+    """
     new_clusters = []
 
     # To keep track of clusters from all_clusters that are not merged
@@ -50,6 +60,18 @@ def merge_cluster_centroid(current_clusters, all_clusters):
 
                 
 def layered_clusters(points, layer_height=1, view_layers=False, view_clusters=True):
+    """
+    Performs layered clustering segmentation on a point cloud using DBSCAN and K-Means.
+
+    Args:
+        points (tuple): Tuple of (tree_points, ground_points) as numpy arrays.
+        layer_height (float, optional): Height of each layer in meters. Default is 1.
+        view_layers (bool, optional): If True, visualize layers. Default is False.
+        view_clusters (bool, optional): If True, visualize clusters. Default is True.
+
+    Returns:
+        tuple: (all_clusters, ground_points), where all_clusters is a list of cluster dicts.
+    """
     tree_points, ground_points = points
     layers = []
     visualise_layers = []
@@ -180,11 +202,14 @@ def save_classified_las(point_groups, ground_points, filename, base_header=None)
     """
     Save a LAS file with an extra byte dimension 'tree_id' for tree segmentation labels.
 
-    Parameters:
-    - point_groups: List of dicts with 'points' key (N, 3) arrays for each cluster/tree
-    - ground_points: numpy array of (N, 3) ground points
-    - filename: output .las or .laz file
-    - base_header: optional laspy header
+    Args:
+        point_groups (list): List of dicts with 'points' key (N, 3) arrays for each cluster/tree.
+        ground_points (numpy.ndarray): Array of (N, 3) ground points.
+        filename (str): Output .las or .laz file.
+        base_header (laspy.LasHeader, optional): Optional laspy header to use.
+
+    Returns:
+        None
     """
     # Define header with point format 6+ (supports extra dimensions)
     if base_header is None:

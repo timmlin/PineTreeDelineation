@@ -1,28 +1,28 @@
 import laspy
 import numpy as np
 import open3d as o3d
-import random
-import time
-import os
-import subprocess
-import sys
-import re
-
-from sklearn.cluster import DBSCAN
 
 from tools.utils import *
-from src.layered_clusters import layered_clusters, save_classified_las
+from src.layered_clusters import *
 
 
 def main():
+    """
+    Example workflow for layered clustering segmentation on a LAS file.
 
+    Args:
+        None
 
-    file_path = 'data/SCION/NPCs/tile_10_normalised.las'
+    Returns:
+        None
+    """
+    # -------------INPUT-LAS-FILE-------------
+    file_path = 'path-to-input-las-file.las'
 
     las = laspy.read(file_path)
 
     #-------------PRE-PROCESSING
-    las = noramlise_las(las)
+    las = offset_to_origin(las)
 
     points = np.vstack((las.x, las.y, las.z)).T
 
@@ -37,16 +37,16 @@ def main():
     points = classify_ground_threshold(points, 1, visualise=False)
 
     #--------------SEGMENTATION-----------------------
-    start_time = time.time()
 
     points, ground_points = layered_clusters(points, view_layers=False, view_clusters=True)
 
-    end_time = time.time()
-    total_time = end_time - start_time
 
 
     save_segmented_las(points, ground_points)
 
 
 
-main()
+
+
+if __name__ == "__main__":
+    main()
